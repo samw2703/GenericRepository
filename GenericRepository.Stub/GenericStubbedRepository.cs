@@ -1,17 +1,20 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using GenericRepository.Abstractions;
+using StubbedRepository;
 
-namespace StubbedRepository
+namespace GenericRepository.Stub
 {
-	public abstract class StubbedRepository<T, TKey> : IRepository<T, TKey>
+	public abstract class GenericStubbedRepository<T, TKey> : IGenericRepository<T, TKey>
+		where TKey : IEquatable<TKey>
 	{
 		private readonly List<T> _items = new List<T>();
 
 		public Task<T> Get(TKey key)
 			=> _items
-				.SingleOrDefault(x => KeyMatch(x, key))
+				.SingleOrDefault(x => key.Equals(GetKey(x)))
 				.ToTask();
 		
 
@@ -37,8 +40,6 @@ namespace StubbedRepository
 			_items.Remove(item);
 		}
 
-		public abstract bool KeyMatch(T item, TKey key);
-
-		public abstract TKey GetKey(T item);
+		protected abstract TKey GetKey(T item);
 	}
 }

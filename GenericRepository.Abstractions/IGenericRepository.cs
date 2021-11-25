@@ -2,7 +2,7 @@
 
 namespace GenericRepository.Abstractions
 {
-	public interface IRepository<T, TKey>
+	public interface IGenericRepository<T, TKey>
 	{
 		Task<T> Get(TKey key);
 		Task Save(T item);
