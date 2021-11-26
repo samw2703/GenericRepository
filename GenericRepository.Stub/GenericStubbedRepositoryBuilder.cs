@@ -4,16 +4,16 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace GenericRepository.Stub
 {
-	public class StubbedGenericRepositoryBuilder
+	public class GenericStubbedRepositoryBuilder
 	{
 		private readonly IServiceCollection _serviceCollection;
 
-		internal StubbedGenericRepositoryBuilder(IServiceCollection serviceCollection)
+		internal GenericStubbedRepositoryBuilder(IServiceCollection serviceCollection)
 		{
 			_serviceCollection = serviceCollection;
 		}
 
-		public StubbedGenericRepositoryBuilder Add<T, TKey>(Func<T, TKey> keySelector)
+		public GenericStubbedRepositoryBuilder Add<T, TKey>(Func<T, TKey> keySelector)
 			where TKey : IEquatable<TKey>
 		{
 			var repo = new GenericStubbedRepository<T, TKey>(keySelector);

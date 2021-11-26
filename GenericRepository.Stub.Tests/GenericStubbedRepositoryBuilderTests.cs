@@ -7,13 +7,13 @@ using NUnit.Framework;
 
 namespace GenericRepository.Stub.Tests
 {
-	public class StubbedGenericRepositoryBuilderTests
+	public class GenericStubbedRepositoryBuilderTests
 	{
 		[Test]
 		public void Add_RepoThatHasNotYetBeenAdded_AddsRepo()
 		{
 			var serviceCollection = new ServiceCollection();
-			new StubbedGenericRepositoryBuilder(serviceCollection)
+			new GenericStubbedRepositoryBuilder(serviceCollection)
 				.Add<RepoItem, int>(x => x.Id);
 
 			serviceCollection
@@ -26,7 +26,7 @@ namespace GenericRepository.Stub.Tests
 		{
 			var ex = Assert.Throws<ArgumentException>(
 				() => new ServiceCollection()
-					.Call(sc => new StubbedGenericRepositoryBuilder(sc))
+					.Call(sc => new GenericStubbedRepositoryBuilder(sc))
 					.Add<RepoItem, int>(x => x.Id)
 					.Add<RepoItem, int>(x => x.Id));
 			Assert.AreEqual("A repository for GenericRepository.Stub.Tests.StubbedGenericRepositoryBuilderTests+RepoItem with key System.Int32", ex.Message);
