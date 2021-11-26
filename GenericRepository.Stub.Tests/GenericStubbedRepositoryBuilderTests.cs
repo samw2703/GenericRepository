@@ -29,7 +29,7 @@ namespace GenericRepository.Stub.Tests
 					.Call(sc => new GenericStubbedRepositoryBuilder(sc))
 					.Add<RepoItem, int>(x => x.Id)
 					.Add<RepoItem, int>(x => x.Id));
-			Assert.AreEqual("A repository for GenericRepository.Stub.Tests.StubbedGenericRepositoryBuilderTests+RepoItem with key System.Int32", ex.Message);
+			Assert.AreEqual("A repository for GenericRepository.Stub.Tests.GenericStubbedRepositoryBuilderTests+RepoItem with key System.Int32 has already been registered", ex.Message);
 		}
 
 		private class RepoItem

@@ -17,8 +17,8 @@ namespace GenericRepository.Stub
 			where TKey : IEquatable<TKey>
 		{
 			var repo = new GenericStubbedRepository<T, TKey>(keySelector);
-			if (_serviceCollection.HasService<IGenericRepository<T, TKey>>())
-				throw new ArgumentException($"A repository for {typeof(T).FullName} with key {typeof(TKey).FullName}");
+			if (_serviceCollection.ContainsGenericRepository<T, TKey>())
+				throw new ArgumentException($"A repository for {typeof(T).FullName} with key {typeof(TKey).FullName} has already been registered");
 			
 			_serviceCollection.AddSingleton<IGenericRepository<T, TKey>>(repo);
 			return this;

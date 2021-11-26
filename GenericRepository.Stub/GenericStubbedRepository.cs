@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using GenericRepository.Abstractions;
-using StubbedRepository;
 
 namespace GenericRepository.Stub
 {
