@@ -11,18 +11,16 @@ namespace GenericRepository.Extensions.Tests
 		private class RepoItem
 		{
 			public Guid Id { get; set; }
-			public string Value { get; set; }
 
-			public RepoItem(Guid id, string value)
+			public RepoItem(Guid id)
 			{
 				Id = id;
-				Value = value;
 			}
 		}
 
 		private class RepoItemRepository : IGenericRepository<RepoItem, Guid>
 		{
-			private readonly List<RepoItem> _items = new List<RepoItem>();
+			private readonly List<RepoItem> _items = new();
 
 			public Task<RepoItem> Get(Guid id)
 				=> _items
