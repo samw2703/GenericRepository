@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace StubbedRepository
+namespace GenericRepository.Stub
 {
 	internal static class TaskExtensions
 	{

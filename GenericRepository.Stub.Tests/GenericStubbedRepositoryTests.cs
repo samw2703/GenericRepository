@@ -7,7 +7,7 @@ namespace GenericRepository.Stub.Tests
 {
 	public partial class GenericStubbedRepositoryTests
 	{
-		private RepoItemRepository _repo = new();
+		private readonly GenericStubbedRepository<RepoItem, Guid> _repo = new(x => x.Id);
 		private readonly Guid _firstItemId = Guid.NewGuid();
 		private readonly string _firstItemValue = "I am the first item";
 

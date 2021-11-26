@@ -15,10 +15,5 @@ namespace GenericRepository.Stub.Tests
 				Value = value;
 			}
 		}
-
-		private class RepoItemRepository : GenericStubbedRepository<RepoItem, Guid>
-		{
-			protected override Guid GetKey(RepoItem item) => item.Id;
-		}
 	}
 }
