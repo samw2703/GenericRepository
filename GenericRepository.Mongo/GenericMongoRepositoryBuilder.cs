@@ -30,6 +30,20 @@ namespace GenericRepository.Mongo
 			return this;
 		}
 
+		public GenericMongoRepositoryBuilder Add<TEntity, TKey, TDocument>(Expression<Func<TDocument, TKey>> keySelector,
+			Expression<Func<TDocument, TEntity>> mapFromDocument,
+			Expression<Func<TEntity, TDocument>> mapToDocument)
+			where TKey : IEquatable<TKey>
+		{
+			var collection = CreateAndWireUpConnectionCollection<TDocument>();
+			if (_serviceCollection.ContainsGenericRepository<TEntity, TKey>())
+				throw new ArgumentException($"A repository for {typeof(TEntity).FullName} with key {typeof(TKey).FullName} has already been registered");
+
+			var repo = new GenericMongoRepository<TEntity, TKey, TDocument>(keySelector, mapFromDocument, mapToDocument.Compile(), collection);
+			_serviceCollection.AddSingleton<IGenericRepository<TEntity, TKey>>(repo);
+			return this;
+		}
+
 		private IMongoCollection<TEntity> CreateAndWireUpConnectionCollection<TEntity>()
 		{
 			var collection = _database
