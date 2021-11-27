@@ -11,15 +11,12 @@ namespace GenericRepository.Mongo.Tests
 		[SetUp]
 		public void Setup()
 		{
-			Config
-				.Init()
-				.Call(config => new MongoClient(config.GetSection("ConnectionString").Value))
-				.Use(ResetDatabase);
+			new MongoClient(Config.ConnectionString)
+				.Use(x => ResetDatabase(x, Config.DatabaseName));
 		}
 
-		private void ResetDatabase(MongoClient client)
+		private void ResetDatabase(MongoClient client, string dbName)
 		{
-			const string dbName = "GenericMongoRepositoryTests";
 			client.DropDatabase(dbName);
 			_db = client.GetDatabase(dbName);
 		}

@@ -18,7 +18,7 @@ namespace GenericRepository.Mongo
 			_database = new MongoClient(connectionString).GetDatabase(databaseName);
 		}
 		
-		public GenericMongoRepositoryBuilder Add<TEntity, TKey>(Expression<Func<TEntity, TKey>> keySelector)
+		public GenericMongoRepositoryBuilder SimpleAdd<TEntity, TKey>(Expression<Func<TEntity, TKey>> keySelector)
 			where TKey : IEquatable<TKey>
 		{
 			var collection = CreateAndWireUpConnectionCollection<TEntity>();

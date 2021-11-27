@@ -1,7 +1,6 @@
 using System;
 using System.Threading.Tasks;
 using GenericRepository.Abstractions;
-using MongoDB.Bson.Serialization.Attributes;
 using NUnit.Framework;
 
 namespace GenericRepository.Mongo.Tests
