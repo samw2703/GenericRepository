@@ -53,13 +53,4 @@ namespace GenericRepository.Mongo
 		private FilterDefinition<TDocument> GetFilter(TKey key)
 			=> Builders<TDocument>.Filter.Eq(_keySelectorExpression, key);
 	}
-
-	internal static class Extensions
-	{
-		public static FindOptions<T, TResult> ToProjectionFindOptions<T, TResult>(this Expression<Func<T, TResult>> expression)
-			=> new FindOptions<T, TResult>
-			{
-				Projection = Builders<T>.Projection.Expression(expression)
-			};
-	}
 }
