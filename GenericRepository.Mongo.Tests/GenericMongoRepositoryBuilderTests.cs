@@ -12,24 +12,42 @@ namespace GenericRepository.Mongo.Tests
 {
 	public class GenericMongoRepositoryBuilderTests : MongoTestsBase
 	{
-		private Expression<Func<RepoItemEntity, RepoItem>> _mapToDocument = x => new RepoItem(x.Id);
-		private Expression<Func<RepoItem, RepoItemEntity>> _mapFromDocument = x => new RepoItemEntity(x.Id);
+		private static readonly Expression<Func<RepoItemEntity, RepoItem>> MapToDocument = x => new RepoItem(x.Id);
+		private static readonly Expression<Func<RepoItem, RepoItemEntity>> MapFromDocument = x => new RepoItemEntity(x.Id);
 
-		[SetUp]
-		public void Setup()
+		public delegate void AddMongoRepository(GenericMongoRepositoryBuilder builder);
+
+		private static void AddGenericMongoRepository(GenericMongoRepositoryBuilder builder)
+			=> builder.Add(x => x.Id, MapFromDocument, MapToDocument);
+
+		private static void SimpleAddGenericMongoRepository(GenericMongoRepositoryBuilder builder)
+			=> builder.SimpleAdd<RepoItemEntity, int>(x => x.Id);
+
+		private static object[] _simpleAddThrowTestCases =
 		{
+			new AddMongoRepository[] { SimpleAddGenericMongoRepository },
+			new AddMongoRepository[] { AddGenericMongoRepository }
+		};
 
-		}
+		private static object[] _singleAddTestCases =
+		{
+			new AddMongoRepository[] { AddGenericMongoRepository }
+		};
+
+		private static object[] _AddThrowTestCases =
+		{
+			new AddMongoRepository[] { SimpleAddGenericMongoRepository, AddGenericMongoRepository },
+			new AddMongoRepository[] { AddGenericMongoRepository, AddGenericMongoRepository }
+		};
 
 		[Test]
 		public void SimpleAdd_WhenNoRepoForEntityKeyComboYetAdded_DoesAddRepository()
 		{
 			var serviceCollection = new ServiceCollection();
-			new GenericMongoRepositoryBuilder(serviceCollection, Config.ConnectionString, Config.DatabaseName)
-				.SimpleAdd<RepoItem, int>(x => x.Id);
+			CreateBuilder(serviceCollection).SimpleAdd<RepoItemEntity, int>(x => x.Id);
 
 			serviceCollection
-				.SingleOrDefault(x => x.ServiceType == typeof(IGenericRepository<RepoItem, int>) && x.ImplementationInstance?.GetType() == typeof(SimpleGenericMongoRepository<RepoItem, int>))
+				.SingleOrDefault(x => x.ServiceType == typeof(IGenericRepository<RepoItemEntity, int>) && x.ImplementationInstance?.GetType() == typeof(SimpleGenericMongoRepository<RepoItemEntity, int>))
 				.Use(Assert.IsNotNull);
 		}
 
@@ -37,82 +55,84 @@ namespace GenericRepository.Mongo.Tests
 		public void SimpleAdd_WhenNoRepoForEntityKeyComboYetAdded_DoesAddCollection()
 		{
 			var serviceCollection = new ServiceCollection();
-			new GenericMongoRepositoryBuilder(serviceCollection, Config.ConnectionString, Config.DatabaseName)
-				.SimpleAdd<RepoItem, int>(x => x.Id);
+			CreateBuilder(serviceCollection).SimpleAdd<RepoItemEntity, int>(x => x.Id);
 
 			serviceCollection
-				.SingleOrDefault(x => x.ServiceType == typeof(IMongoCollection<RepoItem>))
+				.SingleOrDefault(x => x.ServiceType == typeof(IMongoCollection<RepoItemEntity>))
 				.Use(Assert.IsNotNull);
 		}
 
-		[Test]
-		public void SimpleAdd_WhenRepoAlreadyAddedForEntityKeyCombo_Throws()
+		[TestCaseSource(nameof(_simpleAddThrowTestCases))]
+		public void SimpleAdd_WhenRepoAlreadyAddedForEntityKeyCombo_Throws(AddMongoRepository initialAdd)
 		{
 			var serviceCollection = new ServiceCollection();
-			var builder = new GenericMongoRepositoryBuilder(serviceCollection, Config.ConnectionString, Config.DatabaseName)
-				.SimpleAdd<RepoItem, int>(x => x.Id);
+			var builder = CreateBuilder(serviceCollection).UseAndReturn(x => initialAdd(x));
 
-			var ex = Assert.Throws<ArgumentException>(() => builder.SimpleAdd<RepoItem, int>(x => x.Id));
-			Assert.AreEqual("A repository for GenericRepository.Mongo.Tests.GenericMongoRepositoryBuilderTests+RepoItem with key System.Int32 has already been registered", ex.Message);
+			var ex = Assert.Throws<ArgumentException>(() => builder.SimpleAdd<RepoItemEntity, int>(x => x.Id));
+			Assert.AreEqual("A repository for GenericRepository.Mongo.Tests.GenericMongoRepositoryBuilderTests+RepoItemEntity with key System.Int32 has already been registered", ex.Message);
 		}
 
 		[Test]
 		public async Task SimpleAdd_RepoThatIsWiredUpIsValidMongoRepo()
 		{
 			var serviceCollection = new ServiceCollection();
-			new GenericMongoRepositoryBuilder(serviceCollection, Config.ConnectionString, Config.DatabaseName)
-				.SimpleAdd<RepoItem, int>(x => x.Id);
+			CreateBuilder(serviceCollection).SimpleAdd<RepoItemEntity, int>(x => x.Id);
 
 			var id = 1;
 			var serviceProvider = serviceCollection.BuildServiceProvider();
-			await serviceProvider.GetRequiredService<IGenericRepository<RepoItem, int>>().Save(new RepoItem(id));
-			var item = (await serviceProvider.GetService<IMongoCollection<RepoItem>>().FindAsync(x => x.Id == id))
+			await serviceProvider.GetRequiredService<IGenericRepository<RepoItemEntity, int>>().Save(new RepoItemEntity(id));
+			var item = (await serviceProvider.GetService<IMongoCollection<RepoItemEntity>>().FindAsync(x => x.Id == id))
 				.SingleOrDefault();
 
 			Assert.AreEqual(id, item?.Id);
 		}
 
 		[Test]
-		public void Add_WhenNoRepoForEntityKeyComboYetAdded_DoesAddRepository()
+		public void SimpleAdd_PassedInKeySelectorIsNull_Throws()
 		{
 			var serviceCollection = new ServiceCollection();
-			new GenericMongoRepositoryBuilder(serviceCollection, Config.ConnectionString, Config.DatabaseName)
-				.Add(x => x.Id, _mapFromDocument, _mapToDocument);
+			var ex = Assert.Throws<ArgumentException>(() => CreateBuilder(serviceCollection).SimpleAdd<RepoItemEntity, int>(null));
+
+			Assert.AreEqual("The key selector for the repository defined for GenericRepository.Mongo.Tests.GenericMongoRepositoryBuilderTests+RepoItemEntity cannot be null", ex.Message);
+		}
+
+		[TestCaseSource(nameof(_singleAddTestCases))]
+		public void Add_WhenNoRepoForEntityKeyComboYetAdded_DoesAddRepository(AddMongoRepository add)
+		{
+			var serviceCollection = new ServiceCollection();
+			CreateBuilder(serviceCollection).Use(x => add(x));
 
 			serviceCollection
 				.SingleOrDefault(x => x.ServiceType == typeof(IGenericRepository<RepoItemEntity, int>) && x.ImplementationInstance?.GetType() == typeof(GenericMongoRepository<RepoItemEntity, int, RepoItem>))
 				.Use(Assert.IsNotNull);
 		}
 
-		[Test]
-		public void Add_WhenNoRepoForEntityKeyComboYetAdded_DoesAddCollection()
+		[TestCaseSource(nameof(_singleAddTestCases))]
+		public void Add_WhenNoRepoForEntityKeyComboYetAdded_DoesAddCollection(AddMongoRepository add)
 		{
 			var serviceCollection = new ServiceCollection();
-			new GenericMongoRepositoryBuilder(serviceCollection, Config.ConnectionString, Config.DatabaseName)
-				.Add(x => x.Id, _mapFromDocument, _mapToDocument);
+			CreateBuilder(serviceCollection).Use(x => add(x));
 
 			serviceCollection
 				.SingleOrDefault(x => x.ServiceType == typeof(IMongoCollection<RepoItem>))
 				.Use(Assert.IsNotNull);
 		}
 
-		[Test]
-		public void Add_WhenRepoAlreadyAddedForEntityKeyCombo_Throws()
+		[TestCaseSource(nameof(_AddThrowTestCases))]
+		public void Add_WhenRepoAlreadyAddedForEntityKeyCombo_Throws(AddMongoRepository initialAdd, AddMongoRepository duplicateAdd)
 		{
 			var serviceCollection = new ServiceCollection();
-			var builder = new GenericMongoRepositoryBuilder(serviceCollection, Config.ConnectionString, Config.DatabaseName)
-				.Add(x => x.Id, _mapFromDocument, _mapToDocument);
+			var builder = CreateBuilder(serviceCollection).UseAndReturn(x => initialAdd(x));
 
-			var ex = Assert.Throws<ArgumentException>(() => builder.Add(x => x.Id, _mapFromDocument, _mapToDocument));
+			var ex = Assert.Throws<ArgumentException>(() => builder.Use(x => duplicateAdd(x)));
 			Assert.AreEqual("A repository for GenericRepository.Mongo.Tests.GenericMongoRepositoryBuilderTests+RepoItemEntity with key System.Int32 has already been registered", ex.Message);
 		}
 
-		[Test]
-		public async Task Add_RepoThatIsWiredUpIsValidMongoRepo()
+		[TestCaseSource(nameof(_singleAddTestCases))]
+		public async Task Add_RepoThatIsWiredUpIsValidMongoRepo(AddMongoRepository add)
 		{
 			var serviceCollection = new ServiceCollection();
-			new GenericMongoRepositoryBuilder(serviceCollection, Config.ConnectionString, Config.DatabaseName)
-				.Add(x => x.Id, _mapFromDocument, _mapToDocument);
+			CreateBuilder(serviceCollection).Use(x => add(x));
 
 			var id = 1;
 			var serviceProvider = serviceCollection.BuildServiceProvider();
@@ -122,6 +142,9 @@ namespace GenericRepository.Mongo.Tests
 
 			Assert.AreEqual(id, item?.Id);
 		}
+
+		private GenericMongoRepositoryBuilder CreateBuilder(IServiceCollection serviceCollection)
+			=> new(serviceCollection, Config.ConnectionString, Config.DatabaseName);
 
 		private class RepoItem
 		{
