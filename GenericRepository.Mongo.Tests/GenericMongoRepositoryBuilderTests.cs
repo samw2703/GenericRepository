@@ -34,12 +34,21 @@ namespace GenericRepository.Mongo.Tests
 			new AddMongoRepository[] { AddGenericMongoRepository }
 		};
 
-		private static object[] _AddThrowTestCases =
+		private static object[] _addThrowTestCases =
 		{
 			new AddMongoRepository[] { SimpleAddGenericMongoRepository, AddGenericMongoRepository },
 			new AddMongoRepository[] { AddGenericMongoRepository, AddGenericMongoRepository }
 		};
 
+		[Test]
+		public void SimpleAdd_PassedInKeySelectorIsNull_Throws()
+		{
+			var serviceCollection = new ServiceCollection();
+			var ex = Assert.Throws<ArgumentException>(() => CreateBuilder(serviceCollection).SimpleAdd<RepoItemEntity, int>(null));
+
+			Assert.AreEqual("The key selector for the repository defined for GenericRepository.Mongo.Tests.GenericMongoRepositoryBuilderTests+RepoItemEntity cannot be null", ex.Message);
+		}
+		
 		[Test]
 		public void SimpleAdd_WhenNoRepoForEntityKeyComboYetAdded_DoesAddRepository()
 		{
@@ -87,15 +96,6 @@ namespace GenericRepository.Mongo.Tests
 			Assert.AreEqual(id, item?.Id);
 		}
 
-		[Test]
-		public void SimpleAdd_PassedInKeySelectorIsNull_Throws()
-		{
-			var serviceCollection = new ServiceCollection();
-			var ex = Assert.Throws<ArgumentException>(() => CreateBuilder(serviceCollection).SimpleAdd<RepoItemEntity, int>(null));
-
-			Assert.AreEqual("The key selector for the repository defined for GenericRepository.Mongo.Tests.GenericMongoRepositoryBuilderTests+RepoItemEntity cannot be null", ex.Message);
-		}
-
 		[TestCaseSource(nameof(_singleAddTestCases))]
 		public void Add_WhenNoRepoForEntityKeyComboYetAdded_DoesAddRepository(AddMongoRepository add)
 		{
@@ -118,7 +118,7 @@ namespace GenericRepository.Mongo.Tests
 				.Use(Assert.IsNotNull);
 		}
 
-		[TestCaseSource(nameof(_AddThrowTestCases))]
+		[TestCaseSource(nameof(_addThrowTestCases))]
 		public void Add_WhenRepoAlreadyAddedForEntityKeyCombo_Throws(AddMongoRepository initialAdd, AddMongoRepository duplicateAdd)
 		{
 			var serviceCollection = new ServiceCollection();
