@@ -17,5 +17,37 @@ namespace GenericRepository.Mongo
 
 		public static bool ContainsGenericRepository<T, TKey>(this IServiceCollection sc)
 			=> sc.Any(x => x.ServiceType == typeof(IGenericRepository<T, TKey>));
+
+		public static bool ImplementsGenerically<T>(this Type type)
+		{
+			if (!typeof(T).IsInterface)
+				throw new ArgumentException("The inputted type to check against must be an interface");
+
+			return type.GetInterfaces()
+				.Select(StandardizeType)
+				.Any(x => x == StandardizeType(typeof(T)));
+		}
+
+		private static Type StandardizeType(Type type)
+		{
+			if (type.IsGenericType)
+				return type.GetGenericTypeDefinition();
+
+			return type;
+		}
+
+		public static bool HasParameterlessPublicConstructor(this Type type)
+		{
+			var constructors = type.GetConstructors();
+			var parameterlessConstructor = type
+				.GetConstructors()
+				.SingleOrDefault(x => !x.GetParameters().Any());
+
+			if (parameterlessConstructor == null)
+				return false;
+
+			return parameterlessConstructor.IsPublic;
+		}
+
 	}
 }

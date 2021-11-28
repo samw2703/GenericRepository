@@ -50,7 +50,7 @@ namespace GenericRepository.Mongo
 			IGenericMongoRepositoryArgs<TEntity, TKey, TDocument> args)
 			where TKey : IEquatable<TKey>
 		{
-			return Add(args.keySelector, args.MapFromDocument, args.MapToDocument);
+			return Add(args.KeySelector, args.MapFromDocument, args.MapToDocument);
 		}
 
 		private void ValidateArgs<TEntity, TKey, TDocument>(Expression<Func<TDocument, TKey>> keySelector,
@@ -78,12 +78,5 @@ namespace GenericRepository.Mongo
 			_serviceCollection.AddSingleton(collection);
 			return collection;
 		}
-	}
-
-	public interface IGenericMongoRepositoryArgs<TEntity, TKey, TDocument> where TKey : IEquatable<TKey>
-	{
-		Expression<Func<TDocument, TKey>> keySelector { get; }
-		Expression<Func<TDocument, TEntity>> MapFromDocument { get; }
-		Expression<Func<TEntity, TDocument>> MapToDocument { get; }
 	}
 }
