@@ -1,22 +1,27 @@
 ﻿using System;
 using System.Linq;
+using System.Reflection;
 
 namespace GenericRepository.Mongo
 {
 	internal class GenericMongoRepositoryArgsType
 	{
-		public Type Value { get; }
+		private readonly Type _value; 
 
 		public GenericMongoRepositoryArgsType(Type value)
 		{
 			Validate(value);
-			Value = value;
+			_value = value;
 		}
 
 		private void Validate(Type value)
 		{
-			if (!value.ImplementsGenerically<IGenericMongoRepositoryArgs<object, int, object>>())
-				throw new ArgumentException($"Underlying type must implement {typeof(IGenericMongoRepositoryArgs<object, int, object>).GetGenericTypeDefinition().FullName}");
+			var implementationCount = value.GetRepositoryImplementationCount();
+			if (implementationCount == 0)
+				throw new ArgumentException($"{value.FullName} must implement {Helper.CreateRepositoryArgsGenericTypeDefinition().FullName}");
+
+			if (implementationCount > 1)
+				throw new ArgumentException($"{value.FullName} cannot implement {Helper.CreateRepositoryArgsGenericTypeDefinition().FullName} multiple times");
 
 			if (!value.HasParameterlessPublicConstructor())
 				throw new NoPublicParameterlessConstructor(value);
@@ -32,9 +37,25 @@ namespace GenericRepository.Mongo
 				throw new ArgumentException($"MapToDocument is not set for {value.FullName}");
 		}
 
-		public Type GetEntityType() => Value.GetGenericArguments()[0];
+		public Type GetEntityType() => GetGenericMongoRepositoryArgsType().GetGenericArguments()[0];
+		public Type GetKeyType() => GetGenericMongoRepositoryArgsType().GetGenericArguments()[1];
+		public Type GetDocumentType() => GetGenericMongoRepositoryArgsType().GetGenericArguments()[2];
 
-		public Type GetKeyType() => Value.GetGenericArguments()[1];
+		public object GetKeySelector() => InvokeGet(nameof(IGenericMongoRepositoryArgs<object, int, object>.KeySelector));
+		public object GetMapFromDocument() => InvokeGet(nameof(IGenericMongoRepositoryArgs<object, int, object>.MapFromDocument));
+		public object GetMapToDocument() => InvokeGet(nameof(IGenericMongoRepositoryArgs<object, int, object>.MapToDocument));
+
+		private object InvokeGet(string propertyName)
+			=> _value
+				.GetProperty(propertyName)
+				.GetMethod
+				.Invoke(Activator.CreateInstance(_value), null);
+
+		public Type CreateGenericMongoRepositoryType() =>
+			Helper.CreateGenericMongoRepositoryType(GetEntityType(), GetKeyType(), GetDocumentType());
+
+		private Type GetGenericMongoRepositoryArgsType()
+			=> _value.GetInterfaces().Single(x => x.StandardizeType() == typeof(IGenericMongoRepositoryArgs<object, int, object>).StandardizeType());
 
 		private bool KeySelectorIsNull(Type value, object instance)
 			=> value.GetProperties()

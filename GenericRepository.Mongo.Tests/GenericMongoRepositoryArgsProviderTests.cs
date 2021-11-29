@@ -21,6 +21,14 @@ namespace GenericRepository.Mongo.Tests
 		}
 
 		[Test]
+		public void GetArgsTypes_AnImplementationImplementsMultipleGenericTypeArgs_Throws()
+		{
+			var ex = Assert.Throws<ArgumentException>(() => GetArgs(typeof(MultipleImplementationsArgs)));
+
+			Assert.AreEqual("GenericRepository.Mongo.Tests.GenericMongoRepositoryArgsProviderTests+MultipleImplementationsArgs cannot implement GenericRepository.Mongo.IGenericMongoRepositoryArgs`3 multiple times", ex.Message);
+		}
+
+		[Test]
 		public void GetArgsTypes_ImplementationDoesNotHaveKeySelectorSet_Throws()
 		{
 			var ex = Assert.Throws<ArgumentException>(() => GetArgs(typeof(NokeySelectorArgs)));
@@ -50,8 +58,8 @@ namespace GenericRepository.Mongo.Tests
 			var args = GetArgs(typeof(Args1), typeof(object), typeof(Args2));
 
 			Assert.AreEqual(2, args.Count);
-			Assert.True(args.Any(x => x.Value == typeof(Args1)));
-			Assert.True(args.Any(x => x.Value == typeof(Args2)));
+			Assert.True(args.Any(x => Is(x, new Args1())));
+			Assert.True(args.Any(x => Is(x, new Args2())));
 		}
 
 		[Test]
@@ -61,6 +69,14 @@ namespace GenericRepository.Mongo.Tests
 				() => GetSimpleArgs(typeof(SimpleNonParameterlessConsturctorArgs)));
 
 			Assert.AreEqual(ex.Type, typeof(SimpleNonParameterlessConsturctorArgs));
+		}
+
+		[Test]
+		public void GetSimpleArgsTypes_AnImplementationImplementsMultipleSimpleGenericTypeArgs_Throws()
+		{
+			var ex = Assert.Throws<ArgumentException>(() => GetSimpleArgs(typeof(MultipleSimpleImplementationsArgs)));
+
+			Assert.AreEqual("GenericRepository.Mongo.Tests.GenericMongoRepositoryArgsProviderTests+MultipleSimpleImplementationsArgs cannot implement GenericRepository.Mongo.ISimpleGenericMongoRepositoryArgs`2 multiple times", ex.Message);
 		}
 
 		[Test]
@@ -77,9 +93,20 @@ namespace GenericRepository.Mongo.Tests
 			var args = GetSimpleArgs(typeof(SimpleArgs1), typeof(object), typeof(SimpleArgs2));
 
 			Assert.AreEqual(2, args.Count);
-			Assert.True(args.Any(x => x.Value == typeof(SimpleArgs1)));
-			Assert.True(args.Any(x => x.Value == typeof(SimpleArgs2)));
+			Assert.True(args.Any(x => Is(x, new SimpleArgs1())));
+			Assert.True(args.Any(x => Is(x, new SimpleArgs2())));
 		}
+
+		private bool Is<TEntity, TKey, TDocument>(GenericMongoRepositoryArgsType argsType, IGenericMongoRepositoryArgs<TEntity, TKey, TDocument> args)
+			where TKey : IEquatable<TKey>
+			=> argsType.GetKeyType() == typeof(TKey)
+			   && argsType.GetEntityType() == typeof(TEntity)
+			   && argsType.GetDocumentType() == typeof(TDocument);
+
+		private bool Is<TEntity, TKey>(SimpleGenericMongoRepositoryArgsType argsType, ISimpleGenericMongoRepositoryArgs<TEntity, TKey> args)
+			where TKey : IEquatable<TKey>
+			=> argsType.GetKeyType() == typeof(TKey)
+			   && argsType.GetEntityType() == typeof(TEntity);
 
 		private List<GenericMongoRepositoryArgsType> GetArgs(params Type[] types)
 			=> MockTypesProvider(types).Call(x => new GenericMongoRepositoryArgsProvider(x).GetArgsTypes(null));
@@ -106,7 +133,7 @@ namespace GenericRepository.Mongo.Tests
 			public Expression<Func<NonParameterlessConsturctorDocument, int>> KeySelector { get; }
 			public Expression<Func<NonParameterlessConsturctorDocument, NonParameterlessConsturctorEntity>> MapFromDocument { get; }
 
-			public Expression<Func<NonParameterlessConsturctorEntity, NonParameterlessConsturctorDocument>> MapToDocument { get; }
+			public Func<NonParameterlessConsturctorEntity, NonParameterlessConsturctorDocument> MapToDocument { get; }
 		}
 
 		private class NonParameterlessConsturctorEntity{}
@@ -117,7 +144,7 @@ namespace GenericRepository.Mongo.Tests
 		{
 			public Expression<Func<Document1, int>> KeySelector { get; } = x => x.Id;
 			public Expression<Func<Document1, Entity1>> MapFromDocument { get; } = x => new Entity1();
-			public Expression<Func<Entity1, Document1>> MapToDocument { get; } = x => new Document1();
+			public Func<Entity1, Document1> MapToDocument { get; } = x => new Document1();
 		}
 
 		private class Entity1 { }
@@ -131,7 +158,7 @@ namespace GenericRepository.Mongo.Tests
 		{
 			public Expression<Func<Document2, int>> KeySelector { get; } = x => x.Id;
 			public Expression<Func<Document2, Entity2>> MapFromDocument { get; } = x => new Entity2();
-			public Expression<Func<Entity2, Document2>> MapToDocument { get; } = x => new Document2();
+			public Func<Entity2, Document2> MapToDocument { get; } = x => new Document2();
 		}
 
 		private class Entity2 { }
@@ -146,8 +173,7 @@ namespace GenericRepository.Mongo.Tests
 			public Expression<Func<NokeySelectorDocument, int>> KeySelector { get; }
 			public Expression<Func<NokeySelectorDocument, NokeySelectorEntity>> MapFromDocument { get; } 
 				= x => new NokeySelectorEntity();
-			public Expression<Func<NokeySelectorEntity, NokeySelectorDocument>> MapToDocument { get; }
-				= x => new NokeySelectorDocument();
+			public Func<NokeySelectorEntity, NokeySelectorDocument> MapToDocument { get; } = x => new NokeySelectorDocument();
 		}
 
 		private class NokeySelectorEntity { }
@@ -158,8 +184,7 @@ namespace GenericRepository.Mongo.Tests
 		{
 			public Expression<Func<NoMapFromDocumentDocument, int>> KeySelector { get; } = x => x.Id;
 			public Expression<Func<NoMapFromDocumentDocument, NoMapFromDocumentEntity>> MapFromDocument { get; }
-			public Expression<Func<NoMapFromDocumentEntity, NoMapFromDocumentDocument>> MapToDocument { get; }
-				= x => new NoMapFromDocumentDocument();
+			public Func<NoMapFromDocumentEntity, NoMapFromDocumentDocument> MapToDocument { get; } = x => new NoMapFromDocumentDocument();
 		}
 
 		private class NoMapFromDocumentEntity { }
@@ -174,7 +199,7 @@ namespace GenericRepository.Mongo.Tests
 			public Expression<Func<NoMapToDocumentDocument, int>> KeySelector { get; } = x => x.Id;
 			public Expression<Func<NoMapToDocumentDocument, NoMapToDocumentEntity>> MapFromDocument { get; }
 				= x => new NoMapToDocumentEntity();
-			public Expression<Func<NoMapToDocumentEntity, NoMapToDocumentDocument>> MapToDocument { get; }
+			public Func<NoMapToDocumentEntity, NoMapToDocumentDocument> MapToDocument { get; }
 		}
 
 		private class NoMapToDocumentEntity { }
@@ -182,6 +207,28 @@ namespace GenericRepository.Mongo.Tests
 		private class NoMapToDocumentDocument
 		{
 			public int Id { get; set; }
+		}
+
+		private class MultipleImplementationsArgs : IGenericMongoRepositoryArgs<object, int, object>, IGenericMongoRepositoryArgs<string, int, string>
+		{
+			private Expression<Func<object, int>> _keySelector;
+			private Expression<Func<object, object>> _mapFromDocument;
+			private Func<object, object> _mapToDocument;
+			private Expression<Func<string, int>> _keySelector1;
+			private Expression<Func<string, string>> _mapFromDocument1;
+			private Func<string, string> _mapToDocument1;
+
+			Expression<Func<object, int>> IGenericMongoRepositoryArgs<object, int, object>.KeySelector => _keySelector;
+
+			Expression<Func<string, string>> IGenericMongoRepositoryArgs<string, int, string>.MapFromDocument => _mapFromDocument1;
+
+			Func<string, string> IGenericMongoRepositoryArgs<string, int, string>.MapToDocument => _mapToDocument1;
+
+			Expression<Func<string, int>> IGenericMongoRepositoryArgs<string, int, string>.KeySelector => _keySelector1;
+
+			Expression<Func<object, object>> IGenericMongoRepositoryArgs<object, int, object>.MapFromDocument => _mapFromDocument;
+
+			Func<object, object> IGenericMongoRepositoryArgs<object, int, object>.MapToDocument => _mapToDocument;
 		}
 
 		private class SimpleNonParameterlessConsturctorArgs : ISimpleGenericMongoRepositoryArgs<SimpleNonParameterlessConsturctorEntity, int>
@@ -222,5 +269,15 @@ namespace GenericRepository.Mongo.Tests
 		}
 
 		private class NokeySelectorSimpleEntity { }
+
+		private class MultipleSimpleImplementationsArgs : ISimpleGenericMongoRepositoryArgs<object, int>, ISimpleGenericMongoRepositoryArgs<string, int>
+		{
+			private Expression<Func<object, int>> _keySelector;
+			private Expression<Func<string, int>> _keySelector1;
+
+			Expression<Func<object, int>> ISimpleGenericMongoRepositoryArgs<object, int>.KeySelector => _keySelector;
+
+			Expression<Func<string, int>> ISimpleGenericMongoRepositoryArgs<string, int>.KeySelector => _keySelector1;
+		}
 	}
 }

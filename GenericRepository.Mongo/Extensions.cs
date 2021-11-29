@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using GenericRepository.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
@@ -28,7 +29,21 @@ namespace GenericRepository.Mongo
 				.Any(x => x == StandardizeType(typeof(T)));
 		}
 
-		private static Type StandardizeType(Type type)
+		public static int GetRepositoryImplementationCount(this Type type)
+		{
+			return type.GetInterfaces()
+				.Select(StandardizeType)
+				.Count(x => x == Helper.CreateRepositoryArgsGenericTypeDefinition());
+		}
+
+		public static int GetSimpleRepositoryImplementationCount(this Type type)
+		{
+			return type.GetInterfaces()
+				.Select(StandardizeType)
+				.Count(x => x == Helper.CreateSimpleRepositoryArgsGenericTypeDefinition());
+		}
+
+		public static Type StandardizeType(this Type type)
 		{
 			if (type.IsGenericType)
 				return type.GetGenericTypeDefinition();
@@ -47,6 +62,11 @@ namespace GenericRepository.Mongo
 
 			return parameterlessConstructor.IsPublic;
 		}
+
+		public static ConstructorInfo GetParameterlessPublicConstructor(this Type type)
+			=> type
+				.GetConstructors()
+				.SingleOrDefault(x => !x.GetParameters().Any() && x.IsPublic);
 
 		public static bool HasService(this IServiceCollection services, Type serviceType)
 			=> services.Any(x => x.ServiceType == serviceType);

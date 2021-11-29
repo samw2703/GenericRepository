@@ -7,7 +7,7 @@ namespace GenericRepository.Mongo
 	{
 		Expression<Func<TDocument, TKey>> KeySelector { get; }
 		Expression<Func<TDocument, TEntity>> MapFromDocument { get; }
-		Expression<Func<TEntity, TDocument>> MapToDocument { get; }
+		Func<TEntity, TDocument> MapToDocument { get; }
 	}
 
 	public interface ISimpleGenericMongoRepositoryArgs<TEntity, TKey> where TKey : IEquatable<TKey>

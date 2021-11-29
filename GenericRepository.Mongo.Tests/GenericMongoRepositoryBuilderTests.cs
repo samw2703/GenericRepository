@@ -12,7 +12,7 @@ namespace GenericRepository.Mongo.Tests
 {
 	public class GenericMongoRepositoryBuilderTests : MongoTestsBase
 	{
-		private static readonly Expression<Func<RepoItemEntity, RepoItem>> MapToDocument = x => new RepoItem(x.Id);
+		private static readonly Func<RepoItemEntity, RepoItem> MapToDocument = x => new RepoItem(x.Id);
 		private static readonly Expression<Func<RepoItem, RepoItemEntity>> MapFromDocument = x => new RepoItemEntity(x.Id);
 
 		public delegate void AddMongoRepository(GenericMongoRepositoryBuilder builder);

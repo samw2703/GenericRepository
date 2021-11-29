@@ -33,7 +33,7 @@ namespace GenericRepository.Mongo
 
 		public GenericMongoRepositoryBuilder Add<TEntity, TKey, TDocument>(Expression<Func<TDocument, TKey>> keySelector,
 			Expression<Func<TDocument, TEntity>> mapFromDocument,
-			Expression<Func<TEntity, TDocument>> mapToDocument)
+			Func<TEntity, TDocument> mapToDocument)
 			where TKey : IEquatable<TKey>
 		{
 			ValidateArgs(keySelector, mapFromDocument, mapToDocument);
@@ -41,7 +41,7 @@ namespace GenericRepository.Mongo
 			if (_serviceCollection.ContainsGenericRepository<TEntity, TKey>())
 				throw new ArgumentException($"A repository for {typeof(TEntity).FullName} with key {typeof(TKey).FullName} has already been registered");
 
-			var repo = new GenericMongoRepository<TEntity, TKey, TDocument>(keySelector, mapFromDocument, mapToDocument.Compile(), collection);
+			var repo = new GenericMongoRepository<TEntity, TKey, TDocument>(keySelector, mapFromDocument, mapToDocument, collection);
 			_serviceCollection.AddSingleton<IGenericRepository<TEntity, TKey>>(repo);
 			return this;
 		}
@@ -55,7 +55,7 @@ namespace GenericRepository.Mongo
 
 		private void ValidateArgs<TEntity, TKey, TDocument>(Expression<Func<TDocument, TKey>> keySelector,
 			Expression<Func<TDocument, TEntity>> mapFromDocument,
-			Expression<Func<TEntity, TDocument>> mapToDocument)
+			Func<TEntity, TDocument> mapToDocument)
 		{
 			ValidateKeySelector<TDocument, TKey, TEntity>(keySelector);
 			if (mapFromDocument == null)
