@@ -6,7 +6,7 @@ namespace GenericRepository.Mongo
 {
 	internal class GenericMongoRepositoryArgsType
 	{
-		private readonly Type _value; 
+		private readonly Type _value;
 
 		public GenericMongoRepositoryArgsType(Type value)
 		{

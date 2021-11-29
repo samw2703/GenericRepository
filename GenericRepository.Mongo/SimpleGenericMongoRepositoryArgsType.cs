@@ -5,14 +5,12 @@ namespace GenericRepository.Mongo
 {
 	internal class SimpleGenericMongoRepositoryArgsType
 	{
-		private readonly Type _simpleGenericMongoRepositoryArgsType;
+		private readonly Type _value;
 
 		public SimpleGenericMongoRepositoryArgsType(Type value)
 		{
 			Validate(value);
-			_simpleGenericMongoRepositoryArgsType = value
-				.GetInterfaces()
-				.Single(x => x.StandardizeType() == Helper.CreateSimpleRepositoryArgsGenericTypeDefinition());
+			_value = value;
 		}
 
 		private void Validate(Type value)
@@ -32,9 +30,19 @@ namespace GenericRepository.Mongo
 				throw new ArgumentException($"KeySelector is not set for {value.FullName}");
 		}
 
-		public Type GetEntityType() => _simpleGenericMongoRepositoryArgsType.GetGenericArguments()[0];
-		public Type GetKeyType() => _simpleGenericMongoRepositoryArgsType.GetGenericArguments()[1];
+		public Type GetEntityType() => GetGenericMongoRepositoryArgsType().GetGenericArguments()[0];
+		public Type GetKeyType() => GetGenericMongoRepositoryArgsType().GetGenericArguments()[1];
 
+		public Type CreateSimpleGenericMongoRepositoryType() =>
+			Helper.CreateSimpleGenericMongoRepositoryType(GetEntityType(), GetKeyType());
+
+		public object GetKeySelector() => _value
+			.GetProperty(nameof(ISimpleGenericMongoRepositoryArgs<object, int>.KeySelector))
+			.GetMethod
+			.Invoke(Activator.CreateInstance(_value), null);
+
+		private Type GetGenericMongoRepositoryArgsType()
+			=> _value.GetInterfaces().Single(x => x.StandardizeType() == Helper.CreateSimpleRepositoryArgsGenericTypeDefinition());
 		private bool KeySelectorIsNull(Type value, object instance)
 			=> value.GetProperties()
 				.Single(x => x.Name == nameof(ISimpleGenericMongoRepositoryArgs<object, int>.KeySelector))

@@ -9,6 +9,11 @@ namespace GenericRepository.Mongo
 				.GetGenericTypeDefinition()
 				.MakeGenericType(entityType, keyType, documentType);
 
+		public static Type CreateSimpleGenericMongoRepositoryType(Type entityType, Type keyType)
+			=> typeof(SimpleGenericMongoRepository<object, int>)
+				.GetGenericTypeDefinition()
+				.MakeGenericType(entityType, keyType);
+
 		public static Type CreateRepositoryArgsGenericTypeDefinition()
 			=> typeof(IGenericMongoRepositoryArgs<object, int, object>).GetGenericTypeDefinition();
 
