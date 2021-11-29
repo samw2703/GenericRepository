@@ -38,7 +38,6 @@ namespace GenericRepository.Mongo
 
 		public static bool HasParameterlessPublicConstructor(this Type type)
 		{
-			var constructors = type.GetConstructors();
 			var parameterlessConstructor = type
 				.GetConstructors()
 				.SingleOrDefault(x => !x.GetParameters().Any());
@@ -49,5 +48,7 @@ namespace GenericRepository.Mongo
 			return parameterlessConstructor.IsPublic;
 		}
 
+		public static bool HasService(this IServiceCollection services, Type serviceType)
+			=> services.Any(x => x.ServiceType == serviceType);
 	}
 }

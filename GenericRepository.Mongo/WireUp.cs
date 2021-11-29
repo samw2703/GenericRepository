@@ -6,7 +6,10 @@ namespace GenericRepository.Mongo
 {
 	public static class WireUp
 	{
-		public static void AddGenericMongoRepositories(this IServiceCollection serviceCollection, params Assembly[] assemblies)
+		public static void AddGenericMongoRepositories(this IServiceCollection serviceCollection, 
+			string connectionString, 
+			string databaseName, 
+			params Assembly[] assemblies)
 		{
 
 		}
