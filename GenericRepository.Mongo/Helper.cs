@@ -1,4 +1,5 @@
 ﻿using System;
+using GenericRepository.Abstractions;
 
 namespace GenericRepository.Mongo
 {
@@ -19,5 +20,10 @@ namespace GenericRepository.Mongo
 
 		public static Type CreateSimpleRepositoryArgsGenericTypeDefinition()
 			=> typeof(ISimpleGenericMongoRepositoryArgs<object, int>).GetGenericTypeDefinition();
+
+		public static Type CreateIGenericRepositoryType(Type entityType, Type keyType)
+			=> typeof(IGenericRepository<object, int>)
+				.GetGenericTypeDefinition()
+				.MakeGenericType(entityType, keyType);
 	}
 }

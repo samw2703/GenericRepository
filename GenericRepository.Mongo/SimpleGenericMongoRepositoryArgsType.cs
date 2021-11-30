@@ -42,7 +42,7 @@ namespace GenericRepository.Mongo
 			.Invoke(Activator.CreateInstance(_value), null);
 
 		private Type GetGenericMongoRepositoryArgsType()
-			=> _value.GetInterfaces().Single(x => x.StandardizeType() == Helper.CreateSimpleRepositoryArgsGenericTypeDefinition());
+			=> _value.GetInterfaces().Single(x => x.IsGenericType && x.GetGenericTypeDefinition() == Helper.CreateSimpleRepositoryArgsGenericTypeDefinition());
 		private bool KeySelectorIsNull(Type value, object instance)
 			=> value.GetProperties()
 				.Single(x => x.Name == nameof(ISimpleGenericMongoRepositoryArgs<object, int>.KeySelector))

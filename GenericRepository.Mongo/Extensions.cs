@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
-using GenericRepository.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
 
@@ -16,18 +14,11 @@ namespace GenericRepository.Mongo
 				Projection = Builders<T>.Projection.Expression(expression)
 			};
 
-		public static bool ContainsGenericRepository<T, TKey>(this IServiceCollection sc)
-			=> sc.Any(x => x.ServiceType == typeof(IGenericRepository<T, TKey>));
+		public static bool ImplementsGenericMongoRepositoryArgs(this Type type)
+			=> type.ImplementsGenerically<IGenericMongoRepositoryArgs<object, int, object>>();
 
-		public static bool ImplementsGenerically<T>(this Type type)
-		{
-			if (!typeof(T).IsInterface)
-				throw new ArgumentException("The inputted type to check against must be an interface");
-
-			return type.GetInterfaces()
-				.Select(StandardizeType)
-				.Any(x => x == StandardizeType(typeof(T)));
-		}
+		public static bool ImplementsSimpleGenericMongoRepositoryArgs(this Type type)
+			=> type.ImplementsGenerically<ISimpleGenericMongoRepositoryArgs<object, int>>();
 
 		public static int GetRepositoryImplementationCount(this Type type)
 		{
@@ -43,14 +34,6 @@ namespace GenericRepository.Mongo
 				.Count(x => x == Helper.CreateSimpleRepositoryArgsGenericTypeDefinition());
 		}
 
-		public static Type StandardizeType(this Type type)
-		{
-			if (type.IsGenericType)
-				return type.GetGenericTypeDefinition();
-
-			return type;
-		}
-
 		public static bool HasParameterlessPublicConstructor(this Type type)
 		{
 			var parameterlessConstructor = type
@@ -63,12 +46,25 @@ namespace GenericRepository.Mongo
 			return parameterlessConstructor.IsPublic;
 		}
 
-		public static ConstructorInfo GetParameterlessPublicConstructor(this Type type)
-			=> type
-				.GetConstructors()
-				.SingleOrDefault(x => !x.GetParameters().Any() && x.IsPublic);
-
 		public static bool HasService(this IServiceCollection services, Type serviceType)
 			=> services.Any(x => x.ServiceType == serviceType);
+
+		private static bool ImplementsGenerically<T>(this Type type)
+		{
+			if (!typeof(T).IsInterface)
+				throw new ArgumentException("The inputted type to check against must be an interface");
+
+			return type.GetInterfaces()
+				.Select(StandardizeType)
+				.Any(x => x == StandardizeType(typeof(T)));
+		}
+
+		private static Type StandardizeType(this Type type)
+		{
+			if (type.IsGenericType)
+				return type.GetGenericTypeDefinition();
+
+			return type;
+		}
 	}
 }

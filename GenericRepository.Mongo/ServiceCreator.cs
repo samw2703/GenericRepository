@@ -35,9 +35,7 @@ namespace GenericRepository.Mongo
 
 		private void AddRepository(GenericMongoRepositoryArgsType argsType)
 		{
-			var serviceType = typeof(IGenericRepository<object, int>)
-				.GetGenericTypeDefinition()
-				.MakeGenericType(argsType.GetEntityType(), argsType.GetKeyType());
+			var serviceType = Helper.CreateIGenericRepositoryType(argsType.GetEntityType(), argsType.GetKeyType());
 			_services.AddSingleton(serviceType, sp =>
 			{
 				var impl = argsType.CreateGenericMongoRepositoryType();
@@ -54,9 +52,7 @@ namespace GenericRepository.Mongo
 
 		private void AddSimpleRepository(SimpleGenericMongoRepositoryArgsType argsType)
 		{
-			var serviceType = typeof(IGenericRepository<object, int>)
-				.GetGenericTypeDefinition()
-				.MakeGenericType(argsType.GetEntityType(), argsType.GetKeyType());
+			var serviceType = Helper.CreateIGenericRepositoryType(argsType.GetEntityType(), argsType.GetKeyType());
 			_services.AddSingleton(serviceType, sp =>
 			{
 				var impl = argsType.CreateSimpleGenericMongoRepositoryType();

@@ -55,7 +55,7 @@ namespace GenericRepository.Mongo
 			Helper.CreateGenericMongoRepositoryType(GetEntityType(), GetKeyType(), GetDocumentType());
 
 		private Type GetGenericMongoRepositoryArgsType()
-			=> _value.GetInterfaces().Single(x => x.StandardizeType() == typeof(IGenericMongoRepositoryArgs<object, int, object>).StandardizeType());
+			=> _value.GetInterfaces().Single(x => x.IsGenericType && x.GetGenericTypeDefinition() == Helper.CreateRepositoryArgsGenericTypeDefinition());
 
 		private bool KeySelectorIsNull(Type value, object instance)
 			=> value.GetProperties()
