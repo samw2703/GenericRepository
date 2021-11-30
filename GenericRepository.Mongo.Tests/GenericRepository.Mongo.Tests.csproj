@@ -29,6 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\GenericRepository.Mongo.TestAssembly\GenericRepository.Mongo.TestAssembly.csproj" />
     <ProjectReference Include="..\GenericRepository.Mongo\GenericRepository.Mongo.csproj" />
   </ItemGroup>
 
