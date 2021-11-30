@@ -42,6 +42,17 @@ namespace GenericRepository.Mongo.Tests
 			Assertion.AreIdentical(person, await repo.Get(id));
 		}
 
+		[Test]
+		public async Task DoesWireUpWhenArgsHaveMultipleConstructorsAndOneIsPublicParameterless()
+		{
+			var repo = WireUpAndReturnRepository<Thing, Guid>();
+			var id = Guid.NewGuid();
+			var thing = new Thing(id);
+			await repo.Save(thing);
+
+			Assertion.AreIdentical(thing, await repo.Get(id));
+		}
+
 		private IGenericRepository<T, TKey> WireUpAndReturnRepository<T, TKey>()
 		{
 			var services = new ServiceCollection();

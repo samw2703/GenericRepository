@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
 
@@ -35,16 +36,12 @@ namespace GenericRepository.Mongo
 		}
 
 		public static bool HasParameterlessPublicConstructor(this Type type)
-		{
-			var parameterlessConstructor = type
+			=> type.GetParameterlessPublicConstructor() != null;
+
+		public static ConstructorInfo GetParameterlessPublicConstructor(this Type type)
+			=> type
 				.GetConstructors()
-				.SingleOrDefault(x => !x.GetParameters().Any());
-
-			if (parameterlessConstructor == null)
-				return false;
-
-			return parameterlessConstructor.IsPublic;
-		}
+				.SingleOrDefault(x => x.IsPublic && !x.GetParameters().Any());
 
 		public static bool HasService(this IServiceCollection services, Type serviceType)
 			=> services.Any(x => x.ServiceType == serviceType);

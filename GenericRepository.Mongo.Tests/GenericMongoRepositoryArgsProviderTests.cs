@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Callinho;
+using MongoDB.Driver;
 using Moq;
 using NUnit.Framework;
 
@@ -69,6 +70,15 @@ namespace GenericRepository.Mongo.Tests
 				() => GetSimpleArgs(typeof(SimpleNonParameterlessConsturctorArgs)));
 
 			Assert.AreEqual(ex.Type, typeof(SimpleNonParameterlessConsturctorArgs));
+		}
+
+		[Test]
+		public void GetSimpleArgsTypes_AnImplementationHasPrivateParameterlessConstructor_Throws()
+		{
+			var ex = Assert.Throws<NoPublicParameterlessConstructor>(
+				() => GetSimpleArgs(typeof(PrivateConstructorSimpleArgs)));
+
+			Assert.AreEqual(ex.Type, typeof(PrivateConstructorSimpleArgs));
 		}
 
 		[Test]
@@ -278,6 +288,21 @@ namespace GenericRepository.Mongo.Tests
 			Expression<Func<object, int>> ISimpleGenericMongoRepositoryArgs<object, int>.KeySelector => _keySelector;
 
 			Expression<Func<string, int>> ISimpleGenericMongoRepositoryArgs<string, int>.KeySelector => _keySelector1;
+		}
+
+		private class PrivateConstructorSimpleEntity
+		{
+			public int Id { get; set; }
+		}
+
+		private class PrivateConstructorSimpleArgs : ISimpleGenericMongoRepositoryArgs<PrivateConstructorSimpleEntity, int>
+		{
+			private PrivateConstructorSimpleArgs()
+			{
+				
+			}
+
+			public Expression<Func<PrivateConstructorSimpleEntity, int>> KeySelector { get; } = x => x.Id;
 		}
 	}
 }
