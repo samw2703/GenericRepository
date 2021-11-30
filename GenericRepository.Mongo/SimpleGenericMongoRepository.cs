@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using GenericRepository.Abstractions;
@@ -24,6 +25,10 @@ namespace GenericRepository.Mongo
 				.SingleOrDefault();
 		}
 
+		public async Task<List<TEntity>> GetWhere(Expression<Func<TEntity, bool>> where)
+			=> (await _collection.FindAsync(where)).ToList();
+		
+
 		public async Task Save(TEntity item)
 		{
 			var existingItem = await Get(GetKey(item));
@@ -40,6 +45,9 @@ namespace GenericRepository.Mongo
 		{
 			await _collection.DeleteOneAsync(GetFilter(key));
 		}
+
+		public async Task DeleteWhere(Expression<Func<TEntity, bool>> where)
+			=> await _collection.DeleteManyAsync(where);
 
 		private TKey GetKey(TEntity item) => _keySelectorExpression.Compile()(item);
 

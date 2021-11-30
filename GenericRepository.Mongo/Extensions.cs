@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
 
@@ -45,6 +47,9 @@ namespace GenericRepository.Mongo
 
 		public static bool HasService(this IServiceCollection services, Type serviceType)
 			=> services.Any(x => x.ServiceType == serviceType);
+
+		public static async Task WhenAll(this IEnumerable<Task> tasks)
+			=> await Task.WhenAll(tasks);
 
 		private static bool ImplementsGenerically<T>(this Type type)
 		{

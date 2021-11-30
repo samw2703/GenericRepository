@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using GenericRepository.Abstractions;
@@ -26,10 +28,15 @@ namespace GenericRepository.Mongo
 		}
 
 		public async Task<TEntity> Get(TKey key)
-		{
-			return (await _collection.FindAsync(GetFilter(key), _mapFromDocument.ToProjectionFindOptions()))
+			=> (await _collection.FindAsync(GetFilter(key), _mapFromDocument.ToProjectionFindOptions()))
 				.SingleOrDefault();
-		}
+
+
+		public async Task<List<TEntity>> GetWhere(Expression<Func<TEntity, bool>> where)
+			=> (await _collection.FindAsync(Builders<TDocument>.Filter.Where(_ => true), _mapFromDocument.ToProjectionFindOptions()))
+				.ToEnumerable()
+				.Where(where.Compile())
+				.ToList();
 
 		public async Task Save(TEntity item)
 		{
@@ -46,6 +53,14 @@ namespace GenericRepository.Mongo
 		public async Task Delete(TKey key)
 		{
 			await _collection.DeleteOneAsync(GetFilter(key));
+		}
+
+		public async Task DeleteWhere(Expression<Func<TEntity, bool>> where)
+		{
+			await (await GetWhere(where))
+				.Select(x => _keySelectorExpression.Compile()(_mapToDocument(x)))
+				.Select(Delete)
+				.WhenAll();
 		}
 
 		private TKey GetKey(TEntity item) => _keySelectorExpression.Compile()(_mapToDocument(item));
