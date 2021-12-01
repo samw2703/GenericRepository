@@ -6,12 +6,17 @@ namespace GenericRepository.Stub.Tests
 	{
 		private class RepoItem
 		{
-			public Guid Id { get; set; }
-			public string Value { get; set; }
+			public Guid Id { get; }
+			public int OtherId { get; }
+			public string Value { get; private set; }
 
-			public RepoItem(Guid id, string value)
+			public void SetValue(string newValue)
+				=> Value = newValue;
+
+			public RepoItem(Guid id, int otherId = 0, string value = "")
 			{
 				Id = id;
+				OtherId = otherId;
 				Value = value;
 			}
 		}

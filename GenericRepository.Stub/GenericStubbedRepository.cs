@@ -24,10 +24,7 @@ namespace GenericRepository.Stub
 				.ToTask();
 
 		public Task<List<T>> GetWhere(Expression<Func<T, bool>> @where)
-		{
-			throw new NotImplementedException();
-		}
-
+			=> _items.Where(@where.Compile()).ToList().ToTask();
 
 		public async Task Save(T item)
 		{
@@ -44,7 +41,9 @@ namespace GenericRepository.Stub
 
 		public Task UpdateWhere(Expression<Action<T>> update, Expression<Func<T, bool>> @where)
 		{
-			throw new NotImplementedException();
+			_items.Where(@where.Compile()).ToList().ForEach(update.Compile());
+
+			return Task.CompletedTask;
 		}
 
 		public async Task Delete(TKey key)
@@ -56,9 +55,10 @@ namespace GenericRepository.Stub
 			_items.Remove(item);
 		}
 
-		public Task DeleteWhere(Expression<Func<T, bool>> @where)
+		public Task DeleteWhere(Expression<Func<T, bool>> where)
 		{
-			throw new NotImplementedException();
+			_items.RemoveAll(x => where.Compile()(x));
+			return Task.CompletedTask;
 		}
 	}
 }
