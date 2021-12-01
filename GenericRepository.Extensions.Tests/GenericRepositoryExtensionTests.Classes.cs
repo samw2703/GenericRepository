@@ -48,6 +48,8 @@ namespace GenericRepository.Extensions.Tests
 			}
 
 			public Task UpdateWhere(Expression<Action<RepoItem>> update, Expression<Func<RepoItem, bool>> @where)
+			{
+				throw new NotImplementedException();
 			}
 
 			public async Task Delete(Guid id)
