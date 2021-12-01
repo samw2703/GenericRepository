@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using GenericRepository.Abstractions;
 
@@ -21,7 +22,12 @@ namespace GenericRepository.Stub
 			=> _items
 				.SingleOrDefault(x => key.Equals(_keySelector(x)))
 				.ToTask();
-		
+
+		public Task<List<T>> GetWhere(Expression<Func<T, bool>> @where)
+		{
+			throw new NotImplementedException();
+		}
+
 
 		public async Task Save(T item)
 		{
@@ -36,6 +42,11 @@ namespace GenericRepository.Stub
 			_items.Replace(existingItem, item);
 		}
 
+		public Task UpdateWhere(Expression<Action<T>> update, Expression<Func<T, bool>> @where)
+		{
+			throw new NotImplementedException();
+		}
+
 		public async Task Delete(TKey key)
 		{
 			var item = await Get(key);
@@ -43,6 +54,11 @@ namespace GenericRepository.Stub
 				return;
 
 			_items.Remove(item);
+		}
+
+		public Task DeleteWhere(Expression<Func<T, bool>> @where)
+		{
+			throw new NotImplementedException();
 		}
 	}
 }

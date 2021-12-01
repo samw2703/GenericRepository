@@ -85,6 +85,23 @@ namespace GenericRepository.Mongo.Tests
 		[Test]
 		public async Task DeleteWhere_DeletesMultipleItems()
 		{
+			var otherId = 1;
+			var id1 = Guid.NewGuid();
+			var id2 = Guid.NewGuid();
+			var id3 = Guid.NewGuid();
+			await _repo.Save(new Item(id1, otherId));
+			await _repo.Save(new Item(id2, otherId));
+			await _repo.Save(new Item(id3));
+			await _repo.DeleteWhere(x => x.OtherId == otherId);
+
+			Assert.Null(await _repo.Get(id1));
+			Assert.Null(await _repo.Get(id2));
+			Assert.NotNull(await _repo.Get(id3));
+		}
+
+		[Test]
+		public async Task UpdateWhere_DeletesMultipleItems()
+		{
 			const string updateText = " with an update";
 			const string item1InitialValue = "Item1 initial value";
 			const string item2InitialValue = "Item2 initial value";
