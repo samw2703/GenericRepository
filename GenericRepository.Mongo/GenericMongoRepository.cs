@@ -50,6 +50,19 @@ namespace GenericRepository.Mongo
 			await _collection.ReplaceOneAsync(GetFilter(GetKey(item)), _mapToDocument(item));
 		}
 
+		public async Task UpdateWhere(Expression<Action<TEntity>> update, Expression<Func<TEntity, bool>> @where)
+		{
+			var updateFunc = update.Compile();
+			var updated = (await GetWhere(where)).Select(x =>
+			{
+				updateFunc(x);
+				return x;
+			});
+			await updated
+				.Select(Save)
+				.WhenAll();
+		}
+
 		public async Task Delete(TKey key)
 		{
 			await _collection.DeleteOneAsync(GetFilter(key));

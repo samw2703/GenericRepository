@@ -10,7 +10,7 @@ namespace GenericRepository.Abstractions
 		Task<T> Get(TKey key);
 		Task<List<T>> GetWhere(Expression<Func<T, bool>> where);
 		Task Save(T item);
-		//Task UpdateWhere(Expression<Func<T, bool>> where);
+		Task UpdateWhere(Expression<Action<T>> update, Expression<Func<T, bool>> where);
 		Task Delete(TKey key);
 		Task DeleteWhere(Expression<Func<T, bool>> where);
 	}

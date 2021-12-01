@@ -85,26 +85,33 @@ namespace GenericRepository.Mongo.Tests
 		[Test]
 		public async Task DeleteWhere_DeletesMultipleItems()
 		{
+			const string updateText = " with an update";
+			const string item1InitialValue = "Item1 initial value";
+			const string item2InitialValue = "Item2 initial value";
+			const string item3InitialValue = "Item3 initial value";
 			var otherId = 1;
 			var id1 = Guid.NewGuid();
 			var id2 = Guid.NewGuid();
 			var id3 = Guid.NewGuid();
-			await _repo.Save(new Item(id1, otherId));
-			await _repo.Save(new Item(id2, otherId));
-			await _repo.Save(new Item(id3));
+			await _repo.Save(new Item(id1, otherId, item1InitialValue));
+			await _repo.Save(new Item(id2, otherId, item2InitialValue));
+			await _repo.Save(new Item(id3, value: item3InitialValue));
 
-			await _repo.DeleteWhere(x => x.OtherId == otherId);
+			await _repo.UpdateWhere(x => x.SetValue(x.Value + " with an update"), x => x.OtherId == otherId);
 
-			Assert.Null(await _repo.Get(id1));
-			Assert.Null(await _repo.Get(id2));
-			Assert.NotNull(await _repo.Get(id3));
+			Assert.AreEqual($"{item1InitialValue}{updateText}", (await _repo.Get(id1)).Value);
+			Assert.AreEqual($"{item2InitialValue}{updateText}", (await _repo.Get(id2)).Value);
+			Assert.AreEqual(item3InitialValue, (await _repo.Get(id3)).Value);
 		}
 
 		protected class Item
 		{
 			public Guid Id { get; }
 			public int OtherId { get; }
-			public string Value { get; }
+			public string Value { get; private set; }
+
+			public void SetValue(string newValue)
+				=> Value = newValue;
 
 			public Item(Guid id, int otherId = 0, string value = "")
 			{
