@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using GenericRepository.Abstractions;
 
@@ -27,6 +28,11 @@ namespace GenericRepository.Extensions.Tests
 					.SingleOrDefault(x => x.Id == id)
 					.ToTask();
 
+			public Task<List<RepoItem>> GetWhere(Expression<Func<RepoItem, bool>> @where)
+			{
+				throw new NotImplementedException();
+			}
+
 
 			public async Task Save(RepoItem item)
 			{
@@ -41,6 +47,9 @@ namespace GenericRepository.Extensions.Tests
 				_items.Replace(existingItem, item);
 			}
 
+			public Task UpdateWhere(Expression<Action<RepoItem>> update, Expression<Func<RepoItem, bool>> @where)
+			}
+
 			public async Task Delete(Guid id)
 			{
 				var item = await Get(id);
@@ -48,6 +57,11 @@ namespace GenericRepository.Extensions.Tests
 					return;
 
 				_items.Remove(item);
+			}
+
+			public Task DeleteWhere(Expression<Func<RepoItem, bool>> @where)
+			{
+				throw new NotImplementedException();
 			}
 		}
 	}
