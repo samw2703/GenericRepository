@@ -15,5 +15,8 @@ namespace GenericRepository.Extensions
 
 		public static async Task Delete<T, TKey>(this IGenericRepository<T, TKey> genericRepository, IEnumerable<TKey> keys)
 			=> await Task.WhenAll(keys.Select(genericRepository.Delete));
+
+		public static async Task<IEnumerable<T>> GetAll<T, TKey>(this IGenericRepository<T, TKey> genericRepository)
+			=> await genericRepository.GetWhere(_ => true);
 	}
 }

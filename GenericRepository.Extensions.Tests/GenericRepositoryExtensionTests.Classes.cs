@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using CollectionUtilities;
 using GenericRepository.Abstractions;
 
 namespace GenericRepository.Extensions.Tests
@@ -29,9 +30,7 @@ namespace GenericRepository.Extensions.Tests
 					.ToTask();
 
 			public Task<List<RepoItem>> GetWhere(Expression<Func<RepoItem, bool>> @where)
-			{
-				throw new NotImplementedException();
-			}
+				=> _items.Where(x => @where.Compile()(x)).ToList().ToTask();
 
 
 			public async Task Save(RepoItem item)

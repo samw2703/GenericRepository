@@ -10,7 +10,13 @@ namespace GenericRepository.Extensions.Tests
 {
 	public partial class GenericRepositoryExtensionTests
 	{
-		private readonly RepoItemRepository _repo = new();
+		private RepoItemRepository _repo;
+
+		[SetUp]
+		public void Setup()
+		{
+			_repo = new RepoItemRepository();
+		}
 
 		[Test]
 		public async Task Save_DoesSaveMutlple()
@@ -50,6 +56,23 @@ namespace GenericRepository.Extensions.Tests
 
 			Assert.Null(await _repo.Get(id1));
 			Assert.Null(await _repo.Get(id2));
+		}
+
+		[Test]
+		public async Task GetAll_DoesGetAll()
+		{
+			var id1 = Guid.NewGuid();
+			var id2 = Guid.NewGuid();
+			var id3 = Guid.NewGuid();
+			await _repo.Save(Create(id1));
+			await _repo.Save(Create(id2));
+			await _repo.Save(Create(id3));
+			var records = await _repo.GetAll();
+
+			Assert.AreEqual(3, records.Count());
+			Assert.True(records.Any(x => x.Id == id1));
+			Assert.True(records.Any(x => x.Id == id2));
+			Assert.True(records.Any(x => x.Id == id3));
 		}
 
 		private RepoItem Create(Guid id) => new(id);
