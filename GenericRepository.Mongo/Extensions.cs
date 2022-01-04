@@ -20,6 +20,9 @@ namespace GenericRepository.Mongo
 		public static bool ImplementsGenericMongoRepositoryArgs(this Type type)
 			=> type.ImplementsGenerically<IGenericMongoRepositoryArgs<object, int, object>>();
 
+        public static bool ImplementsGenericMongoRepository2Args(this Type type)
+            => type.ImplementsGenerically<IGenericMongoRepositoryArgs<object, int, object, int>>();
+
 		public static bool ImplementsSimpleGenericMongoRepositoryArgs(this Type type)
 			=> type.ImplementsGenerically<ISimpleGenericMongoRepositoryArgs<object, int>>();
 
@@ -29,6 +32,13 @@ namespace GenericRepository.Mongo
 				.Select(StandardizeType)
 				.Count(x => x == Helper.CreateRepositoryArgsGenericTypeDefinition());
 		}
+
+        public static int GetRepository2ImplementationCount(this Type type)
+        {
+            return type.GetInterfaces()
+                .Select(StandardizeType)
+                .Count(x => x == Helper.CreateRepository2ArgsGenericTypeDefinition());
+        }
 
 		public static int GetSimpleRepositoryImplementationCount(this Type type)
 		{
