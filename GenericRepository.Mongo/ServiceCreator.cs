@@ -9,14 +9,12 @@ namespace GenericRepository.Mongo
 	internal class ServiceCreator
 	{
 		private readonly IServiceCollection _services;
-		private readonly IMongoDatabase _database;
-		private readonly Pluralizer.Pluralizer _pluralizer = new Pluralizer.Pluralizer();
+        private readonly Pluralizer.Pluralizer _pluralizer = new Pluralizer.Pluralizer();
 
 		public ServiceCreator(IServiceCollection services, string connectionString, string databaseName)
 		{
 			_services = services;
-			_database = new MongoClient(connectionString).GetDatabase(databaseName);
-			_services.AddSingleton(_database);
+            _services.AddSingleton(new MongoClient(connectionString).GetDatabase(databaseName));
 		}
 
 		public void CreateServices(GenericMongoRepositoryArgsType argsType)
@@ -26,6 +24,13 @@ namespace GenericRepository.Mongo
 			AddRepository(argsType);
 		}
 
+        public void CreateServices(GenericMongoRepository2ArgsType argsType)
+        {
+            ValidateGenericRepositoryNotAlreadyWired(argsType.GetEntityType(), argsType.GetEntityKeyType());
+            AddMongoCollection(argsType.GetDocumentType());
+            AddRepository(argsType);
+        }
+
 		public void CreateSimpleServices(SimpleGenericMongoRepositoryArgsType argsType)
 		{
 			ValidateGenericRepositoryNotAlreadyWired(argsType.GetEntityType(), argsType.GetKeyType());
@@ -33,22 +38,40 @@ namespace GenericRepository.Mongo
 			AddSimpleRepository(argsType);
 		}
 
-		private void AddRepository(GenericMongoRepositoryArgsType argsType)
+		private void AddRepository(GenericMongoRepository2ArgsType argsType)
 		{
-			var serviceType = Helper.CreateIGenericRepositoryType(argsType.GetEntityType(), argsType.GetKeyType());
+			var serviceType = Helper.CreateIGenericRepositoryType(argsType.GetEntityType(), argsType.GetEntityKeyType());
 			_services.AddSingleton(serviceType, sp =>
 			{
 				var impl = argsType.CreateGenericMongoRepositoryType();
 				var constructor = impl.GetConstructors().Single();
 				return constructor.Invoke(new[]
 				{
+                    sp.GetRequiredService(typeof(IMongoCollection<>).MakeGenericType(argsType.GetDocumentType())),
 					argsType.GetKeySelector(),
 					argsType.GetMapFromDocument(),
 					argsType.GetMapToDocument(),
-					sp.GetRequiredService(typeof(IMongoCollection<>).MakeGenericType(argsType.GetDocumentType()))
-				});
+					argsType.GetMapKey()
+                });
 			});
 		}
+
+        private void AddRepository(GenericMongoRepositoryArgsType argsType)
+        {
+            var serviceType = Helper.CreateIGenericRepositoryType(argsType.GetEntityType(), argsType.GetKeyType());
+            _services.AddSingleton(serviceType, sp =>
+            {
+                var impl = argsType.CreateGenericMongoRepositoryType();
+                var constructor = impl.GetConstructors().Single();
+                return constructor.Invoke(new[]
+                {
+                    argsType.GetKeySelector(),
+                    argsType.GetMapFromDocument(),
+                    argsType.GetMapToDocument(),
+                    sp.GetRequiredService(typeof(IMongoCollection<>).MakeGenericType(argsType.GetDocumentType()))
+                });
+            });
+        }
 
 		private void AddSimpleRepository(SimpleGenericMongoRepositoryArgsType argsType)
 		{
