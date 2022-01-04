@@ -53,6 +53,17 @@ namespace GenericRepository.Mongo.Tests
 			Assertion.AreIdentical(thing, await repo.Get(id));
 		}
 
+        [Test]
+        public async Task DoesWireUpGenericMongoRepository2()
+        {
+            var repo = WireUpAndReturnRepository<FixtureEntity, Guid>();
+            var id = Guid.NewGuid();
+            var fixture = new FixtureEntity(id);
+            await repo.Save(fixture);
+
+            Assertion.AreIdentical(fixture, await repo.Get(id));
+        }
+
 		private IGenericRepository<T, TKey> WireUpAndReturnRepository<T, TKey>()
 		{
 			var services = new ServiceCollection();
