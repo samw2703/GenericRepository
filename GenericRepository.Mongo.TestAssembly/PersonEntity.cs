@@ -15,8 +15,8 @@ namespace GenericRepository.Mongo.TestAssembly
 		}
 	}
 
-	internal class PersonRepoArgs : ISimpleGenericMongoRepositoryArgs<Person, Guid>
+	internal class PersonRepoArgs : GenericMongoRepositoryArgs<Person, Guid>
 	{
-		public Expression<Func<Person, Guid>> KeySelector { get; } = x => x.Id;
+		public override Expression<Func<Person, Guid>> KeySelector { get; } = x => x.Id;
 	}
 }

@@ -13,7 +13,7 @@ namespace GenericRepository.Mongo.TestAssembly
 		}
 	}
 
-	public class ThingArgs : ISimpleGenericMongoRepositoryArgs<Thing, Guid>
+	public class ThingArgs : GenericMongoRepositoryArgs<Thing, Guid>
 	{
 		public ThingArgs()
 		{
@@ -23,6 +23,6 @@ namespace GenericRepository.Mongo.TestAssembly
 		{
 		}
 
-		public Expression<Func<Thing, Guid>> KeySelector { get; } = x => x.Id;
+		public override Expression<Func<Thing, Guid>> KeySelector { get; } = x => x.Id;
 	}
 }

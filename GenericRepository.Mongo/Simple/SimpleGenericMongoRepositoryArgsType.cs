@@ -15,14 +15,10 @@ namespace GenericRepository.Mongo
 
 		private void Validate(Type value)
 		{
-			var implementationCount = value.GetSimpleRepositoryImplementationCount();
-			if (implementationCount == 0)
-				throw new ArgumentException($"{value.FullName} must implement {Helper.CreateSimpleRepositoryArgsGenericTypeDefinition().FullName}");
+            if (!value.ImplementsSimpleGenericMongoRepositoryArgs())
+                throw new ArgumentException($"{value.FullName} must implement {typeof(GenericMongoRepositoryArgs<,>).FullName}");
 
-			if (implementationCount > 1)
-				throw new ArgumentException($"{value.FullName} cannot implement {Helper.CreateSimpleRepositoryArgsGenericTypeDefinition().FullName} multiple times");
-
-			if (!value.HasParameterlessPublicConstructor())
+            if (!value.HasParameterlessPublicConstructor())
 				throw new NoPublicParameterlessConstructor(value);
 
 			var instance = Activator.CreateInstance(value);
@@ -37,15 +33,16 @@ namespace GenericRepository.Mongo
 			Helper.CreateSimpleGenericMongoRepositoryType(GetEntityType(), GetKeyType());
 
 		public object GetKeySelector() => _value
-			.GetProperty(nameof(ISimpleGenericMongoRepositoryArgs<object, int>.KeySelector))
+			.GetProperty(nameof(GenericMongoRepositoryArgs<object, int>.KeySelector))
 			.GetMethod
 			.Invoke(Activator.CreateInstance(_value), null);
 
-		private Type GetGenericMongoRepositoryArgsType()
-			=> _value.GetInterfaces().Single(x => x.IsGenericType && x.GetGenericTypeDefinition() == Helper.CreateSimpleRepositoryArgsGenericTypeDefinition());
-		private bool KeySelectorIsNull(Type value, object instance)
+        private Type GetGenericMongoRepositoryArgsType()
+            => _value.GetInheritanceHierarchy().Single(x => x.StandardizeType() == typeof(GenericMongoRepositoryArgs<,>));
+
+        private bool KeySelectorIsNull(Type value, object instance)
 			=> value.GetProperties()
-				.Single(x => x.Name == nameof(ISimpleGenericMongoRepositoryArgs<object, int>.KeySelector))
+				.Single(x => x.Name == nameof(GenericMongoRepositoryArgs<object, int>.KeySelector))
 				.GetValue(instance) == null;
 	}
 }

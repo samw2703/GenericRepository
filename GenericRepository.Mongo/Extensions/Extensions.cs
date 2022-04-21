@@ -8,18 +8,11 @@ using Microsoft.Extensions.DependencyInjection;
 namespace GenericRepository.Mongo
 {
 	internal static class Extensions
-	{
+    {
         public static bool ImplementsSimpleGenericMongoRepositoryArgs(this Type type)
-			=> type.ImplementsGenerically<ISimpleGenericMongoRepositoryArgs<object, int>>();
+            => type.GetGenericInheritanceHierarchy().Contains(typeof(GenericMongoRepositoryArgs<,>));
 
-        public static int GetSimpleRepositoryImplementationCount(this Type type)
-		{
-			return type.GetInterfaces()
-				.Select(StandardizeType)
-				.Count(x => x == Helper.CreateSimpleRepositoryArgsGenericTypeDefinition());
-		}
-
-		public static bool HasParameterlessPublicConstructor(this Type type)
+        public static bool HasParameterlessPublicConstructor(this Type type)
 			=> type.GetParameterlessPublicConstructor() != null;
 
 		public static ConstructorInfo GetParameterlessPublicConstructor(this Type type)
@@ -33,22 +26,21 @@ namespace GenericRepository.Mongo
 		public static async Task WhenAll(this IEnumerable<Task> tasks)
 			=> await Task.WhenAll(tasks);
 
-		private static bool ImplementsGenerically<T>(this Type type)
-		{
-			if (!typeof(T).IsInterface)
-				throw new ArgumentException("The inputted type to check against must be an interface");
+        public static IEnumerable<Type> GetInheritanceHierarchy(this Type type)
+        {
+            for (var current = type; current != null; current = current.BaseType)
+                yield return current;
+        }
 
-			return type.GetInterfaces()
-				.Select(StandardizeType)
-				.Any(x => x == StandardizeType(typeof(T)));
-		}
-
-		private static Type StandardizeType(this Type type)
+		public static Type StandardizeType(this Type type)
 		{
 			if (type.IsGenericType)
 				return type.GetGenericTypeDefinition();
 
 			return type;
 		}
-	}
+
+        private static IEnumerable<Type> GetGenericInheritanceHierarchy(this Type type)
+            => type.GetInheritanceHierarchy().Select(x => x.StandardizeType());
+    }
 }

@@ -13,7 +13,7 @@ namespace GenericRepository.Mongo.Tests
         [Test]
 		public async Task CreateSimpleServices_CanAddARepository()
 		{
-			var sp = CreateSimpleServicesAndReturnServiceProvider(new SimpleArgs1());
+			var sp = CreateSimpleServicesAndReturnServiceProvider(new Args1());
 			var repo = sp.GetRequiredService<IGenericRepository<SimpleEntity1, Guid>>();
 			var id = Guid.NewGuid();
 			await repo.Save(new SimpleEntity1(id));
@@ -24,7 +24,7 @@ namespace GenericRepository.Mongo.Tests
 		[Test]
 		public async Task CreateSimpleServices_AddingARepositoryAlsoAddsMongoCollection()
 		{
-			var sp = CreateSimpleServicesAndReturnServiceProvider(new SimpleArgs1());
+			var sp = CreateSimpleServicesAndReturnServiceProvider(new Args1());
 			var collection = sp.GetRequiredService<IMongoCollection<SimpleEntity1>>();
 			var id = Guid.NewGuid();
 			await collection.InsertOneAsync(new SimpleEntity1(id));
@@ -36,21 +36,21 @@ namespace GenericRepository.Mongo.Tests
 		public void CreateSimpleServices_CanAddTwoDifferentTypesOfRepository()
 		{
 			var serviceCreator = CreateServiceCreator(new ServiceCollection());
-			serviceCreator.CreateSimpleServices(new SimpleGenericMongoRepositoryArgsType(typeof(SimpleArgs1)));
-			Assert.DoesNotThrow(() => serviceCreator.CreateSimpleServices(new SimpleGenericMongoRepositoryArgsType(typeof(SimpleArgs2))));
+			serviceCreator.CreateSimpleServices(new SimpleGenericMongoRepositoryArgsType(typeof(Args1)));
+			Assert.DoesNotThrow(() => serviceCreator.CreateSimpleServices(new SimpleGenericMongoRepositoryArgsType(typeof(Args2))));
 		}
 
 		[Test]
 		public void CreateSimpleServices_CannotAddTwoOfTheSameRepository()
 		{
 			var serviceCreator = CreateServiceCreator(new ServiceCollection());
-			serviceCreator.CreateSimpleServices(new SimpleGenericMongoRepositoryArgsType(typeof(SimpleArgs1)));
-			var ex = Assert.Throws<ArgumentException>(() => serviceCreator.CreateSimpleServices(new SimpleGenericMongoRepositoryArgsType(typeof(IdenticalSimpleArgs1))));
+			serviceCreator.CreateSimpleServices(new SimpleGenericMongoRepositoryArgsType(typeof(Args1)));
+			var ex = Assert.Throws<ArgumentException>(() => serviceCreator.CreateSimpleServices(new SimpleGenericMongoRepositoryArgsType(typeof(IdenticalArgs1))));
 
 			Assert.AreEqual("A repository for GenericRepository.Mongo.Tests.ServiceCreatorTests+SimpleEntity1 with key System.Guid has already been registered", ex.Message);
 		}
 
-        private IServiceProvider CreateSimpleServicesAndReturnServiceProvider<TEntity, TKey>(ISimpleGenericMongoRepositoryArgs<TEntity, TKey> args)
+        private IServiceProvider CreateSimpleServicesAndReturnServiceProvider<TEntity, TKey>(GenericMongoRepositoryArgs<TEntity, TKey> args)
 			where TKey : IEquatable<TKey>
 		{
 			var sc = new ServiceCollection();
@@ -63,9 +63,9 @@ namespace GenericRepository.Mongo.Tests
 		private ServiceCreator CreateServiceCreator(ServiceCollection sc)
 			=> new(sc, Config.ConnectionString, Config.DatabaseName);
 
-        private class SimpleArgs1 : ISimpleGenericMongoRepositoryArgs<SimpleEntity1, Guid>
+        private class Args1 : GenericMongoRepositoryArgs<SimpleEntity1, Guid>
 		{
-			public Expression<Func<SimpleEntity1, Guid>> KeySelector { get; } = x => x.Id;
+			public override Expression<Func<SimpleEntity1, Guid>> KeySelector { get; } = x => x.Id;
 		}
 
 		private class SimpleEntity1
@@ -78,14 +78,14 @@ namespace GenericRepository.Mongo.Tests
 			}
 		}
 
-		private class IdenticalSimpleArgs1 : ISimpleGenericMongoRepositoryArgs<SimpleEntity1, Guid>
+		private class IdenticalArgs1 : GenericMongoRepositoryArgs<SimpleEntity1, Guid>
 		{
-			public Expression<Func<SimpleEntity1, Guid>> KeySelector { get; } = x => x.Id;
+			public override Expression<Func<SimpleEntity1, Guid>> KeySelector { get; } = x => x.Id;
 		}
 
-		private class SimpleArgs2 : ISimpleGenericMongoRepositoryArgs<SimpleEntity2, Guid>
+		private class Args2 : GenericMongoRepositoryArgs<SimpleEntity2, Guid>
 		{
-			public Expression<Func<SimpleEntity2, Guid>> KeySelector { get; } = x => x.Id;
+			public override Expression<Func<SimpleEntity2, Guid>> KeySelector { get; } = x => x.Id;
 		}
 
 		private class SimpleEntity2
