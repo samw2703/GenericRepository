@@ -8,29 +8,29 @@ using MongoDB.Driver;
 
 namespace GenericRepository.Mongo
 {
-	internal class GenericMongoRepository<TEntity, TKey> : IGenericRepository<TEntity, TKey>
+	internal class GenericMongoRepository<T, TKey> : IGenericRepository<T, TKey>
 		where TKey : IEquatable<TKey>
 	{
-		private readonly Expression<Func<TEntity, TKey>> _keySelectorExpression;
-		private readonly IMongoCollection<TEntity> _collection;
+		private readonly Expression<Func<T, TKey>> _keySelectorExpression;
+		private readonly IMongoCollection<T> _collection;
 
-		public GenericMongoRepository(Expression<Func<TEntity, TKey>> keySelectorExpression, IMongoCollection<TEntity> collection)
+		public GenericMongoRepository(Expression<Func<T, TKey>> keySelectorExpression, IMongoCollection<T> collection)
 		{
 			_keySelectorExpression = keySelectorExpression;
 			_collection = collection;
 		}
 
-		public async Task<TEntity> Get(TKey key)
+		public async Task<T> Get(TKey key)
 		{
 			return (await _collection.FindAsync(GetFilter(key)))
 				.SingleOrDefault();
 		}
 
-		public async Task<List<TEntity>> GetWhere(Expression<Func<TEntity, bool>> where)
+		public async Task<List<T>> GetWhere(Expression<Func<T, bool>> where)
 			=> (await _collection.FindAsync(where)).ToList();
 		
 
-		public async Task Save(TEntity item)
+		public async Task Save(T item)
 		{
 			var existingItem = await Get(GetKey(item));
 			if (existingItem == null)
@@ -42,7 +42,7 @@ namespace GenericRepository.Mongo
 			await _collection.ReplaceOneAsync(GetFilter(GetKey(item)), item);
 		}
 
-		public async Task UpdateWhere(Expression<Action<TEntity>> update, Expression<Func<TEntity, bool>> where)
+		public async Task UpdateWhere(Expression<Action<T>> update, Expression<Func<T, bool>> where)
 		{
 			var updateFunc = update.Compile();
 			var updated = (await GetWhere(where)).Select(x =>
@@ -60,12 +60,12 @@ namespace GenericRepository.Mongo
 			await _collection.DeleteOneAsync(GetFilter(key));
 		}
 
-		public async Task DeleteWhere(Expression<Func<TEntity, bool>> where)
+		public async Task DeleteWhere(Expression<Func<T, bool>> where)
 			=> await _collection.DeleteManyAsync(where);
 
-		private TKey GetKey(TEntity item) => _keySelectorExpression.Compile()(item);
+		private TKey GetKey(T item) => _keySelectorExpression.Compile()(item);
 
-		private FilterDefinition<TEntity> GetFilter(TKey key)
-			=> Builders<TEntity>.Filter.Eq(_keySelectorExpression, key);
+		private FilterDefinition<T> GetFilter(TKey key)
+			=> Builders<T>.Filter.Eq(_keySelectorExpression, key);
 	}
 }
