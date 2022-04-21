@@ -3,11 +3,11 @@ using System.Linq;
 
 namespace GenericRepository.Mongo
 {
-	internal class SimpleGenericMongoRepositoryArgsType
+	internal class GenericMongoRepositoryArgsType
 	{
 		private readonly Type _value;
 
-		public SimpleGenericMongoRepositoryArgsType(Type value)
+		public GenericMongoRepositoryArgsType(Type value)
 		{
 			Validate(value);
 			_value = value;

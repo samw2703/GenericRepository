@@ -17,14 +17,14 @@ namespace GenericRepository.Mongo
             _services.AddSingleton(new MongoClient(connectionString).GetDatabase(databaseName));
 		}
 
-        public void CreateSimpleServices(SimpleGenericMongoRepositoryArgsType argsType)
+        public void CreateSimpleServices(GenericMongoRepositoryArgsType argsType)
 		{
 			ValidateGenericRepositoryNotAlreadyWired(argsType.GetEntityType(), argsType.GetKeyType());
 			AddMongoCollection(argsType.GetEntityType());
 			AddSimpleRepository(argsType);
 		}
 
-        private void AddSimpleRepository(SimpleGenericMongoRepositoryArgsType argsType)
+        private void AddSimpleRepository(GenericMongoRepositoryArgsType argsType)
 		{
 			var serviceType = Helper.CreateIGenericRepositoryType(argsType.GetEntityType(), argsType.GetKeyType());
 			_services.AddSingleton(serviceType, sp =>

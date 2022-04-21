@@ -36,16 +36,16 @@ namespace GenericRepository.Mongo.Tests
 		public void CreateSimpleServices_CanAddTwoDifferentTypesOfRepository()
 		{
 			var serviceCreator = CreateServiceCreator(new ServiceCollection());
-			serviceCreator.CreateSimpleServices(new SimpleGenericMongoRepositoryArgsType(typeof(Args1)));
-			Assert.DoesNotThrow(() => serviceCreator.CreateSimpleServices(new SimpleGenericMongoRepositoryArgsType(typeof(Args2))));
+			serviceCreator.CreateSimpleServices(new GenericMongoRepositoryArgsType(typeof(Args1)));
+			Assert.DoesNotThrow(() => serviceCreator.CreateSimpleServices(new GenericMongoRepositoryArgsType(typeof(Args2))));
 		}
 
 		[Test]
 		public void CreateSimpleServices_CannotAddTwoOfTheSameRepository()
 		{
 			var serviceCreator = CreateServiceCreator(new ServiceCollection());
-			serviceCreator.CreateSimpleServices(new SimpleGenericMongoRepositoryArgsType(typeof(Args1)));
-			var ex = Assert.Throws<ArgumentException>(() => serviceCreator.CreateSimpleServices(new SimpleGenericMongoRepositoryArgsType(typeof(IdenticalArgs1))));
+			serviceCreator.CreateSimpleServices(new GenericMongoRepositoryArgsType(typeof(Args1)));
+			var ex = Assert.Throws<ArgumentException>(() => serviceCreator.CreateSimpleServices(new GenericMongoRepositoryArgsType(typeof(IdenticalArgs1))));
 
 			Assert.AreEqual("A repository for GenericRepository.Mongo.Tests.ServiceCreatorTests+SimpleEntity1 with key System.Guid has already been registered", ex.Message);
 		}
@@ -55,7 +55,7 @@ namespace GenericRepository.Mongo.Tests
 		{
 			var sc = new ServiceCollection();
 			CreateServiceCreator(sc)
-				.CreateSimpleServices(new SimpleGenericMongoRepositoryArgsType(args.GetType()));
+				.CreateSimpleServices(new GenericMongoRepositoryArgsType(args.GetType()));
 
 			return sc.BuildServiceProvider();
 		}
