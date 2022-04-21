@@ -17,21 +17,11 @@ namespace GenericRepository.Mongo
 				Projection = Builders<T>.Projection.Expression(expression)
 			};
 
-		public static bool ImplementsGenericMongoRepositoryArgs(this Type type)
-			=> type.ImplementsGenerically<IGenericMongoRepositoryArgs<object, int, object>>();
-
         public static bool ImplementsGenericMongoRepository2Args(this Type type)
             => type.ImplementsGenerically<IGenericMongoRepositoryArgs<object, int, object, int>>();
 
 		public static bool ImplementsSimpleGenericMongoRepositoryArgs(this Type type)
 			=> type.ImplementsGenerically<ISimpleGenericMongoRepositoryArgs<object, int>>();
-
-		public static int GetRepositoryImplementationCount(this Type type)
-		{
-			return type.GetInterfaces()
-				.Select(StandardizeType)
-				.Count(x => x == Helper.CreateRepositoryArgsGenericTypeDefinition());
-		}
 
         public static int GetRepository2ImplementationCount(this Type type)
         {

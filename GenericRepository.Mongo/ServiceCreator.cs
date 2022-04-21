@@ -17,13 +17,6 @@ namespace GenericRepository.Mongo
             _services.AddSingleton(new MongoClient(connectionString).GetDatabase(databaseName));
 		}
 
-		public void CreateServices(GenericMongoRepositoryArgsType argsType)
-		{
-			ValidateGenericRepositoryNotAlreadyWired(argsType.GetEntityType(), argsType.GetKeyType());
-			AddMongoCollection(argsType.GetDocumentType());
-			AddRepository(argsType);
-		}
-
         public void CreateServices(GenericMongoRepository2ArgsType argsType)
         {
             ValidateGenericRepositoryNotAlreadyWired(argsType.GetEntityType(), argsType.GetEntityKeyType());
@@ -56,24 +49,7 @@ namespace GenericRepository.Mongo
 			});
 		}
 
-        private void AddRepository(GenericMongoRepositoryArgsType argsType)
-        {
-            var serviceType = Helper.CreateIGenericRepositoryType(argsType.GetEntityType(), argsType.GetKeyType());
-            _services.AddSingleton(serviceType, sp =>
-            {
-                var impl = argsType.CreateGenericMongoRepositoryType();
-                var constructor = impl.GetConstructors().Single();
-                return constructor.Invoke(new[]
-                {
-                    argsType.GetKeySelector(),
-                    argsType.GetMapFromDocument(),
-                    argsType.GetMapToDocument(),
-                    sp.GetRequiredService(typeof(IMongoCollection<>).MakeGenericType(argsType.GetDocumentType()))
-                });
-            });
-        }
-
-		private void AddSimpleRepository(SimpleGenericMongoRepositoryArgsType argsType)
+        private void AddSimpleRepository(SimpleGenericMongoRepositoryArgsType argsType)
 		{
 			var serviceType = Helper.CreateIGenericRepositoryType(argsType.GetEntityType(), argsType.GetKeyType());
 			_services.AddSingleton(serviceType, sp =>

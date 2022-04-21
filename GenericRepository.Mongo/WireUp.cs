@@ -12,10 +12,7 @@ namespace GenericRepository.Mongo
 		{
 			var serviceCreator = new ServiceCreator(serviceCollection, connectionString, databaseName);
 			var argsProvider = new GenericMongoRepositoryArgsProvider(new TypesProvider());
-			argsProvider
-				.GetArgsTypes(assemblies)
-				.ForEach(x => serviceCreator.CreateServices(x));
-			argsProvider
+            argsProvider
 				.GetSimpleArgsTypes(assemblies)
 				.ForEach(x => serviceCreator.CreateSimpleServices(x));
 			argsProvider
