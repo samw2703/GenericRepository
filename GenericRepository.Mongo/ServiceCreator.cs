@@ -19,22 +19,22 @@ namespace GenericRepository.Mongo
 
         public void CreateSimpleServices(GenericMongoRepositoryArgsType argsType)
 		{
-			ValidateGenericRepositoryNotAlreadyWired(argsType.GetEntityType(), argsType.GetKeyType());
-			AddMongoCollection(argsType.GetEntityType());
-			AddSimpleRepository(argsType);
+			ValidateGenericRepositoryNotAlreadyWired(argsType.EntityType, argsType.KeyType);
+			AddMongoCollection(argsType.EntityType);
+			AddRepository(argsType);
 		}
 
-        private void AddSimpleRepository(GenericMongoRepositoryArgsType argsType)
+        private void AddRepository(GenericMongoRepositoryArgsType argsType)
 		{
-			var serviceType = Helper.CreateIGenericRepositoryType(argsType.GetEntityType(), argsType.GetKeyType());
+			var serviceType = Helper.CreateIGenericRepositoryType(argsType.EntityType, argsType.KeyType);
 			_services.AddSingleton(serviceType, sp =>
 			{
-				var impl = argsType.CreateSimpleGenericMongoRepositoryType();
+				var impl = argsType.CreateGenericMongoRepositoryType();
 				var constructor = impl.GetConstructors().Single();
 				return constructor.Invoke(new[]
 				{
 					argsType.GetKeySelector(),
-					sp.GetRequiredService(typeof(IMongoCollection<>).MakeGenericType(argsType.GetEntityType()))
+					sp.GetRequiredService(typeof(IMongoCollection<>).MakeGenericType(argsType.EntityType))
 				});
 			});
 		}

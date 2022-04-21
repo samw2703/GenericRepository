@@ -9,7 +9,7 @@ namespace GenericRepository.Mongo
 {
 	internal static class Extensions
     {
-        public static bool ImplementsSimpleGenericMongoRepositoryArgs(this Type type)
+        public static bool ImplementsGenericMongoRepositoryArgs(this Type type)
             => type.GetGenericInheritanceHierarchy().Contains(typeof(GenericMongoRepositoryArgs<,>));
 
         public static bool HasParameterlessPublicConstructor(this Type type)

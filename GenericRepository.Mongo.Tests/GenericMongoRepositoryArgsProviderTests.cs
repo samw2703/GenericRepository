@@ -50,8 +50,8 @@ namespace GenericRepository.Mongo.Tests
 
         private bool Is<TEntity, TKey>(GenericMongoRepositoryArgsType argsType, GenericMongoRepositoryArgs<TEntity, TKey> args)
 			where TKey : IEquatable<TKey>
-			=> argsType.GetKeyType() == typeof(TKey)
-			   && argsType.GetEntityType() == typeof(TEntity);
+			=> argsType.KeyType == typeof(TKey)
+			   && argsType.EntityType == typeof(TEntity);
 
         private List<GenericMongoRepositoryArgsType> GetSimpleArgs(params Type[] types)
 			=> MockTypesProvider(types).Call(x => new GenericMongoRepositoryArgsProvider(x).GetSimpleArgsTypes(null));
