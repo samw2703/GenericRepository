@@ -13,7 +13,7 @@ namespace GenericRepository.Mongo
 			_typesProvider = typesProvider;
 		}
 
-        public List<GenericMongoRepositoryArgsType> GetSimpleArgsTypes(Assembly[] assemblies)
+        public List<GenericMongoRepositoryArgsType> GetArgsTypes(Assembly[] assemblies)
 			=> _typesProvider
 				.GetTypes(assemblies)
 				.Where(x => x.ImplementsGenericMongoRepositoryArgs())

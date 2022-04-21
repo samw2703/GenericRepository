@@ -17,7 +17,7 @@ namespace GenericRepository.Mongo
             _services.AddSingleton(new MongoClient(connectionString).GetDatabase(databaseName));
 		}
 
-        public void CreateSimpleServices(GenericMongoRepositoryArgsType argsType)
+        public void CreateServices(GenericMongoRepositoryArgsType argsType)
 		{
 			ValidateGenericRepositoryNotAlreadyWired(argsType.EntityType, argsType.KeyType);
 			AddMongoCollection(argsType.EntityType);

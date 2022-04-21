@@ -13,35 +13,35 @@ namespace GenericRepository.Mongo.Tests
 	public class GenericMongoRepositoryArgsProviderTests
 	{
         [Test]
-		public void GetSimpleArgsTypes_AnImplementationDoesNotHaveParameterlessConstructor_Throws()
+		public void GetArgsTypes_AnImplementationDoesNotHaveParameterlessConstructor_Throws()
 		{
 			var ex = Assert.Throws<NoPublicParameterlessConstructor>(
-				() => GetSimpleArgs(typeof(NonParameterlessConsturctorArgs)));
+				() => GetArgs(typeof(NonParameterlessConsturctorArgs)));
 
 			Assert.AreEqual(ex.Type, typeof(NonParameterlessConsturctorArgs));
 		}
 
 		[Test]
-		public void GetSimpleArgsTypes_AnImplementationHasPrivateParameterlessConstructor_Throws()
+		public void GetArgsTypes_AnImplementationHasPrivateParameterlessConstructor_Throws()
 		{
 			var ex = Assert.Throws<NoPublicParameterlessConstructor>(
-				() => GetSimpleArgs(typeof(PrivateConstructorArgs)));
+				() => GetArgs(typeof(PrivateConstructorArgs)));
 
 			Assert.AreEqual(ex.Type, typeof(PrivateConstructorArgs));
 		}
 
         [Test]
-		public void GetSimpleArgsTypes_AnImplementationDoesNotSetKeySelector_Throws()
+		public void GetArgsTypes_AnImplementationDoesNotSetKeySelector_Throws()
 		{
-			var ex = Assert.Throws<ArgumentException>(() => GetSimpleArgs(typeof(NokeySelectorArgs)));
+			var ex = Assert.Throws<ArgumentException>(() => GetArgs(typeof(NokeySelectorArgs)));
 
 			Assert.AreEqual("KeySelector is not set for GenericRepository.Mongo.Tests.GenericMongoRepositoryArgsProviderTests+NokeySelectorArgs", ex.Message);
 		}
 
 		[Test]
-		public void GetSimpleArgsTypes_RetrievesExpectedTypes()
+		public void GetArgsTypes_RetrievesExpectedTypes()
 		{
-			var args = GetSimpleArgs(typeof(Args1), typeof(object), typeof(Args2));
+			var args = GetArgs(typeof(Args1), typeof(object), typeof(Args2));
 
 			Assert.AreEqual(2, args.Count);
 			Assert.True(args.Any(x => Is(x, new Args1())));
@@ -53,8 +53,8 @@ namespace GenericRepository.Mongo.Tests
 			=> argsType.KeyType == typeof(TKey)
 			   && argsType.EntityType == typeof(TEntity);
 
-        private List<GenericMongoRepositoryArgsType> GetSimpleArgs(params Type[] types)
-			=> MockTypesProvider(types).Call(x => new GenericMongoRepositoryArgsProvider(x).GetSimpleArgsTypes(null));
+        private List<GenericMongoRepositoryArgsType> GetArgs(params Type[] types)
+			=> MockTypesProvider(types).Call(x => new GenericMongoRepositoryArgsProvider(x).GetArgsTypes(null));
 
 		private ITypesProvider MockTypesProvider(Type[] types)
 		{
@@ -66,58 +66,58 @@ namespace GenericRepository.Mongo.Tests
 			return mock.Object;
 		}
 
-        private class NonParameterlessConsturctorArgs : GenericMongoRepositoryArgs<SimpleNonParameterlessConsturctorEntity, int>
+        private class NonParameterlessConsturctorArgs : GenericMongoRepositoryArgs<NonParameterlessConsturctorEntity, int>
 		{
 			public NonParameterlessConsturctorArgs(int aParam)
 			{
 			}
 
-			public override Expression<Func<SimpleNonParameterlessConsturctorEntity, int>> KeySelector { get; }
+			public override Expression<Func<NonParameterlessConsturctorEntity, int>> KeySelector { get; }
 		}
 
-		private class SimpleNonParameterlessConsturctorEntity { }
+		private class NonParameterlessConsturctorEntity { }
 
 
-		private class Args1 : GenericMongoRepositoryArgs<SimpleEntity1, int>
+		private class Args1 : GenericMongoRepositoryArgs<Entity1, int>
 		{
-			public override Expression<Func<SimpleEntity1, int>> KeySelector { get; } = x => x.Id;
+			public override Expression<Func<Entity1, int>> KeySelector { get; } = x => x.Id;
 		}
 
-		private class SimpleEntity1
-		{
-			public int Id { get; set; }
-		}
-
-		private class Args2 : GenericMongoRepositoryArgs<SimpleEntity2, int>
-		{
-			public override Expression<Func<SimpleEntity2, int>> KeySelector { get; } = x => x.Id;
-		}
-
-		private class SimpleEntity2
+		private class Entity1
 		{
 			public int Id { get; set; }
 		}
 
-		private class NokeySelectorArgs : GenericMongoRepositoryArgs<NokeySelectorSimpleEntity, int>
+		private class Args2 : GenericMongoRepositoryArgs<Entity2, int>
 		{
-			public override Expression<Func<NokeySelectorSimpleEntity, int>> KeySelector { get; }
+			public override Expression<Func<Entity2, int>> KeySelector { get; } = x => x.Id;
 		}
 
-		private class NokeySelectorSimpleEntity { }
-
-        private class PrivateConstructorSimpleEntity
+		private class Entity2
 		{
 			public int Id { get; set; }
 		}
 
-		private class PrivateConstructorArgs : GenericMongoRepositoryArgs<PrivateConstructorSimpleEntity, int>
+		private class NokeySelectorArgs : GenericMongoRepositoryArgs<NokeySelectorEntity, int>
+		{
+			public override Expression<Func<NokeySelectorEntity, int>> KeySelector { get; }
+		}
+
+		private class NokeySelectorEntity { }
+
+        private class PrivateConstructorEntity
+		{
+			public int Id { get; set; }
+		}
+
+		private class PrivateConstructorArgs : GenericMongoRepositoryArgs<PrivateConstructorEntity, int>
 		{
 			private PrivateConstructorArgs()
 			{
 				
 			}
 
-			public override Expression<Func<PrivateConstructorSimpleEntity, int>> KeySelector { get; } = x => x.Id;
+			public override Expression<Func<PrivateConstructorEntity, int>> KeySelector { get; } = x => x.Id;
 		}
     }
 }

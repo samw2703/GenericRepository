@@ -10,7 +10,7 @@ namespace GenericRepository.Mongo.Tests
 	public class WireUpTests : MongoTestsBase
 	{
         [Test]
-		public async Task DoesWireUpSimpleGenericMongoRepository()
+		public async Task DoesWireUpGenericMongoRepository()
 		{
 			var repo = WireUpAndReturnRepository<User, int>();
 			var id = 3;

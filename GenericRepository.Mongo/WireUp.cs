@@ -13,8 +13,8 @@ namespace GenericRepository.Mongo
 			var serviceCreator = new ServiceCreator(serviceCollection, connectionString, databaseName);
 			var argsProvider = new GenericMongoRepositoryArgsProvider(new TypesProvider());
             argsProvider
-				.GetSimpleArgsTypes(assemblies)
-				.ForEach(x => serviceCreator.CreateSimpleServices(x));
+				.GetArgsTypes(assemblies)
+				.ForEach(x => serviceCreator.CreateServices(x));
         }
 	}
 }
