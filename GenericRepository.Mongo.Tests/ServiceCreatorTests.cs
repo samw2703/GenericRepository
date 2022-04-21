@@ -1,8 +1,12 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Threading.Tasks;
 using GenericRepository.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using NUnit.Framework;
 
@@ -10,6 +14,12 @@ namespace GenericRepository.Mongo.Tests
 {
 	public class ServiceCreatorTests : MongoTestsBase
 	{
+        [SetUp]
+        public void Setup()
+        {
+            BsonClassMapHelper.Clear();
+		}
+
         [Test]
 		public async Task CreateServices_CanAddARepository()
 		{

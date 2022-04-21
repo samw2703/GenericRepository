@@ -27,6 +27,7 @@ namespace GenericRepository.Mongo
         private void AddRepository(GenericMongoRepositoryArgsType argsType)
 		{
 			var serviceType = UtilityMethods.CreateIGenericRepositoryType(argsType.EntityType, argsType.KeyType);
+			argsType.RegisterClassMap();
 			_services.AddSingleton(serviceType, sp =>
 			{
 				var impl = argsType.CreateGenericMongoRepositoryType();
@@ -39,7 +40,7 @@ namespace GenericRepository.Mongo
 			});
 		}
 
-		private void AddMongoCollection(Type documentType)
+        private void AddMongoCollection(Type documentType)
 		{
 			_services.AddSingleton(typeof(IMongoCollection<>).MakeGenericType(documentType), sp =>
 			{

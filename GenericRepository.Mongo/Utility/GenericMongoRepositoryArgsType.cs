@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Reflection;
 
 namespace GenericRepository.Mongo
 {
@@ -27,6 +28,12 @@ namespace GenericRepository.Mongo
 			.GetProperty(nameof(GenericMongoRepositoryArgs<object, int>.KeySelector))
 			.GetMethod
 			.Invoke(Activator.CreateInstance(_value), null);
+
+        public void RegisterClassMap()
+        {
+            _value.GetRuntimeMethods().Single(x => x.Name == nameof(GenericMongoRepositoryArgs<object, int>.BaseRegisterClassMap))
+                .Invoke(Activator.CreateInstance(_value), Array.Empty<object>());
+        }
 
         private static void Validate(Type value)
         {

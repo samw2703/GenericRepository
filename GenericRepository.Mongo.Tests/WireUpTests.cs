@@ -9,7 +9,13 @@ namespace GenericRepository.Mongo.Tests
 {
 	public class WireUpTests : MongoTestsBase
 	{
-        [Test]
+        [SetUp]
+        public void Setup()
+        {
+            BsonClassMapHelper.Clear();
+        }
+
+		[Test]
 		public async Task DoesWireUpGenericMongoRepository()
 		{
 			var repo = WireUpAndReturnRepository<User, int>();
