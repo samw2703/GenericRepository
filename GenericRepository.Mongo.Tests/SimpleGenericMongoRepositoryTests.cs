@@ -6,6 +6,6 @@ namespace GenericRepository.Mongo.Tests
 	public class SimpleGenericMongoRepositoryTests : BaseMongoRepositoryTests
 	{
 		protected override IGenericRepository<Item, Guid> CreateRepo()
-			=> new SimpleGenericMongoRepository<Item, Guid>(x => x.Id, GetCollection<Item>());
+			=> new GenericMongoRepository<Item, Guid>(x => x.Id, GetCollection<Item>());
 	}
 }

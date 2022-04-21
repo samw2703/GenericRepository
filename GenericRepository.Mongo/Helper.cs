@@ -6,7 +6,7 @@ namespace GenericRepository.Mongo
 	internal static class Helper
 	{
         public static Type CreateSimpleGenericMongoRepositoryType(Type entityType, Type keyType)
-			=> typeof(SimpleGenericMongoRepository<object, int>)
+			=> typeof(GenericMongoRepository<object, int>)
 				.GetGenericTypeDefinition()
 				.MakeGenericType(entityType, keyType);
 

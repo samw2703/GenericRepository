@@ -8,13 +8,13 @@ using MongoDB.Driver;
 
 namespace GenericRepository.Mongo
 {
-	internal class SimpleGenericMongoRepository<TEntity, TKey> : IGenericRepository<TEntity, TKey>
+	internal class GenericMongoRepository<TEntity, TKey> : IGenericRepository<TEntity, TKey>
 		where TKey : IEquatable<TKey>
 	{
 		private readonly Expression<Func<TEntity, TKey>> _keySelectorExpression;
 		private readonly IMongoCollection<TEntity> _collection;
 
-		public SimpleGenericMongoRepository(Expression<Func<TEntity, TKey>> keySelectorExpression, IMongoCollection<TEntity> collection)
+		public GenericMongoRepository(Expression<Func<TEntity, TKey>> keySelectorExpression, IMongoCollection<TEntity> collection)
 		{
 			_keySelectorExpression = keySelectorExpression;
 			_collection = collection;
