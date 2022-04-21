@@ -15,9 +15,6 @@ namespace GenericRepository.Mongo
             argsProvider
 				.GetSimpleArgsTypes(assemblies)
 				.ForEach(x => serviceCreator.CreateSimpleServices(x));
-			argsProvider
-                .GetArgsTypes2(assemblies)
-                .ForEach(x => serviceCreator.CreateServices(x));
-		}
+        }
 	}
 }

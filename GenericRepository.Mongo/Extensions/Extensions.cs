@@ -1,36 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
-using MongoDB.Driver;
 
 namespace GenericRepository.Mongo
 {
 	internal static class Extensions
 	{
-		public static FindOptions<T, TResult> ToProjectionFindOptions<T, TResult>(this Expression<Func<T, TResult>> expression)
-			=> new FindOptions<T, TResult>
-			{
-				Projection = Builders<T>.Projection.Expression(expression)
-			};
-
-        public static bool ImplementsGenericMongoRepository2Args(this Type type)
-            => type.ImplementsGenerically<IGenericMongoRepositoryArgs<object, int, object, int>>();
-
-		public static bool ImplementsSimpleGenericMongoRepositoryArgs(this Type type)
+        public static bool ImplementsSimpleGenericMongoRepositoryArgs(this Type type)
 			=> type.ImplementsGenerically<ISimpleGenericMongoRepositoryArgs<object, int>>();
 
-        public static int GetRepository2ImplementationCount(this Type type)
-        {
-            return type.GetInterfaces()
-                .Select(StandardizeType)
-                .Count(x => x == Helper.CreateRepository2ArgsGenericTypeDefinition());
-        }
-
-		public static int GetSimpleRepositoryImplementationCount(this Type type)
+        public static int GetSimpleRepositoryImplementationCount(this Type type)
 		{
 			return type.GetInterfaces()
 				.Select(StandardizeType)
