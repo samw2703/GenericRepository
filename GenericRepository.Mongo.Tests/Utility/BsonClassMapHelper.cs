@@ -10,6 +10,9 @@ namespace GenericRepository.Mongo.Tests
     {
         public static void Clear()
         {
+            if (!BsonClassMap.GetRegisteredClassMaps().Any())
+                return;
+
             var cm = BsonClassMap.GetRegisteredClassMaps().First();
             var fi = typeof(BsonClassMap).GetField("__classMaps", BindingFlags.Static | BindingFlags.NonPublic);
             var classMaps = (Dictionary<Type, BsonClassMap>)fi.GetValue(cm);

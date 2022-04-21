@@ -60,7 +60,15 @@ namespace GenericRepository.Mongo.Tests
 			Assert.AreEqual("A repository for GenericRepository.Mongo.Tests.ServiceCreatorTests+Entity1 with key System.Guid has already been registered", ex.Message);
 		}
 
-        private IServiceProvider CreateServicesAndReturnServiceProvider<TEntity, TKey>(GenericMongoRepositoryArgs<TEntity, TKey> args)
+        [Test]
+        public void CreateServices_DoesAddClassMap()
+        {
+			CreateServicesAndReturnServiceProvider(new Args1());
+
+            Assert.True(BsonClassMap.GetRegisteredClassMaps().Any(x => x.ClassType == typeof(Entity1)));
+        }
+
+		private IServiceProvider CreateServicesAndReturnServiceProvider<TEntity, TKey>(GenericMongoRepositoryArgs<TEntity, TKey> args)
 			where TKey : IEquatable<TKey>
 		{
 			var sc = new ServiceCollection();
