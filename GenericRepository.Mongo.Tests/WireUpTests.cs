@@ -9,18 +9,7 @@ namespace GenericRepository.Mongo.Tests
 {
 	public class WireUpTests : MongoTestsBase
 	{
-		[Test]
-		public async Task DoesWireUpGenericMongoRepository()
-		{
-			var repo = WireUpAndReturnRepository<TeamEntity, int>();
-			var id = 1;
-			var team = new TeamEntity(id, "A Team");
-			await repo.Save(team);
-
-			Assertion.AreIdentical(team, await repo.Get(id));
-		}
-
-		[Test]
+        [Test]
 		public async Task DoesWireUpSimpleGenericMongoRepository()
 		{
 			var repo = WireUpAndReturnRepository<User, int>();
@@ -53,18 +42,7 @@ namespace GenericRepository.Mongo.Tests
 			Assertion.AreIdentical(thing, await repo.Get(id));
 		}
 
-        [Test]
-        public async Task DoesWireUpGenericMongoRepository2()
-        {
-            var repo = WireUpAndReturnRepository<FixtureEntity, Guid>();
-            var id = Guid.NewGuid();
-            var fixture = new FixtureEntity(id);
-            await repo.Save(fixture);
-
-            Assertion.AreIdentical(fixture, await repo.Get(id));
-        }
-
-		private IGenericRepository<T, TKey> WireUpAndReturnRepository<T, TKey>()
+        private IGenericRepository<T, TKey> WireUpAndReturnRepository<T, TKey>()
 		{
 			var services = new ServiceCollection();
 			services.AddGenericMongoRepositories(Config.ConnectionString, Config.DatabaseName, typeof(TeamEntity).Assembly);
