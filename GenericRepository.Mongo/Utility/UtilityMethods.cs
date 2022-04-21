@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using GenericRepository.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace GenericRepository.Mongo
 {
-	internal static class Extensions
+	internal static class UtilityMethods
     {
         public static bool ImplementsGenericMongoRepositoryArgs(this Type type)
             => type.GetGenericInheritanceHierarchy().Contains(typeof(GenericMongoRepositoryArgs<,>));
@@ -40,7 +41,13 @@ namespace GenericRepository.Mongo
 			return type;
 		}
 
-        private static IEnumerable<Type> GetGenericInheritanceHierarchy(this Type type)
+        public static Type CreateGenericMongoRepositoryType(Type entityType, Type keyType)
+            => typeof(GenericMongoRepository<,>).MakeGenericType(entityType, keyType);
+
+        public static Type CreateIGenericRepositoryType(Type entityType, Type keyType)
+            => typeof(IGenericRepository<,>).MakeGenericType(entityType, keyType);
+
+		private static IEnumerable<Type> GetGenericInheritanceHierarchy(this Type type)
             => type.GetInheritanceHierarchy().Select(x => x.StandardizeType());
     }
 }

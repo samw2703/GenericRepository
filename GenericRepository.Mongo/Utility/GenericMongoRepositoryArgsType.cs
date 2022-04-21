@@ -21,7 +21,7 @@ namespace GenericRepository.Mongo
 		}
 
         public Type CreateGenericMongoRepositoryType() =>
-			Helper.CreateGenericMongoRepositoryType(EntityType, KeyType);
+			UtilityMethods.CreateGenericMongoRepositoryType(EntityType, KeyType);
 
 		public object GetKeySelector() => _value
 			.GetProperty(nameof(GenericMongoRepositoryArgs<object, int>.KeySelector))
